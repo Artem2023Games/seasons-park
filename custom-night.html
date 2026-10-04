@@ -1,0 +1,892 @@
+<!--
+  Seasons Park — Night Shift
+  © 2026 Artem2023. Все права защищены.
+  Копирование и распространение без разрешения запрещены.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons Park — Кастомная ночь</title>
+<script src="progress.js"></script>
+<style>
+  :root{
+    --bg:#050810;
+    --panel:#0a0f18;
+    --card:#0d1420;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --danger:#ef4444;
+    --success:#4ade80;
+    --gold:#fbbf24;
+    --star:#f472b6;
+    --text:#e2e8f0;
+    --muted:#64748b;
+    --border:#1e293b;
+
+    --lion:#fbbf24;
+    --owl:#f97316;
+    --wolf:#38bdf8;
+    --rabbit:#f472b6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(ellipse at 50% 30%, #1a1f3a 0%, #050810 70%);
+    color:var(--text);
+    user-select:none;-webkit-tap-highlight-color:transparent;
+    padding:30px 16px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  /* ===== Звёзды ===== */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{
+    position:absolute;width:2px;height:2px;
+    background:#fff;border-radius:50%;
+    animation:twinkle 3s infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.2;}
+    50%{opacity:1;}
+  }
+
+  /* ===== Заголовок ===== */
+  .header{
+    position:relative;z-index:2;
+    text-align:center;
+    margin-bottom:24px;
+    max-width:900px;
+    width:100%;
+  }
+  .back-btn{
+    position:absolute;top:0;left:0;
+    padding:10px 18px;
+    background:rgba(30,41,59,.7);
+    border:2px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    text-decoration:none;
+    font-size:.9rem;
+    font-weight:600;
+    transition:all .2s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .back-btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateX(-3px);
+  }
+  .header h1{
+    font-size:2.2rem;
+    font-weight:900;
+    letter-spacing:4px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:6px;
+  }
+  .header .subtitle{
+    color:var(--muted);
+    font-size:.85rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+  }
+
+  /* ===== Основная сетка ===== */
+  .main-grid{
+    position:relative;z-index:2;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+    width:100%;
+    max-width:900px;
+  }
+
+  /* ===== Панель настроек ===== */
+  .settings-panel{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+  }
+
+  .panel-title{
+    color:var(--accent);
+    font-size:.8rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  /* ===== Строка аниматроника ===== */
+  .ai-row{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:16px;
+    align-items:center;
+    padding:16px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:10px;
+    transition:all .2s;
+  }
+  .ai-row:hover{
+    border-color:var(--accent);
+  }
+  .ai-row[data-char="lion"]:hover{border-color:var(--lion);}
+  .ai-row[data-char="owl"]:hover{border-color:var(--owl);}
+  .ai-row[data-char="wolf"]:hover{border-color:var(--wolf);}
+  .ai-row[data-char="rabbit"]:hover{border-color:var(--rabbit);}
+
+  .ai-char{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:180px;
+  }
+  .ai-emoji{
+    font-size:2.2rem;
+    filter:drop-shadow(0 0 10px currentColor);
+  }
+  .ai-name{
+    font-size:1rem;
+    font-weight:700;
+  }
+  .ai-role{
+    font-size:.75rem;
+    color:var(--muted);
+    letter-spacing:1px;
+  }
+
+  /* ===== Управление (кнопки + поле) ===== */
+  .ai-control{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .ai-btn{
+    width:44px;
+    height:44px;
+    border-radius:10px;
+    background:var(--panel);
+    border:2px solid var(--border);
+    color:var(--text);
+    font-size:1.4rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .15s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    user-select:none;
+  }
+  .ai-btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:scale(1.05);
+  }
+  .ai-btn:active{
+    transform:scale(.95);
+  }
+  .ai-btn.minus:hover{border-color:var(--danger);color:var(--danger);}
+  .ai-btn.plus:hover{border-color:var(--success);color:var(--success);}
+
+  .ai-input-wrap{
+    position:relative;
+    width:80px;
+  }
+  .ai-input{
+    width:100%;
+    height:44px;
+    border-radius:10px;
+    background:var(--panel);
+    border:2px solid var(--border);
+    color:var(--text);
+    font:inherit;
+    font-size:1.5rem;
+    font-weight:700;
+    text-align:center;
+    transition:all .2s;
+    outline:none;
+    font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield;
+  }
+  .ai-input::-webkit-outer-spin-button,
+  .ai-input::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .ai-input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 15px rgba(56,189,248,.3);
+  }
+  .ai-row[data-char="lion"] .ai-input:focus{border-color:var(--lion);box-shadow:0 0 15px rgba(251,191,36,.3);}
+  .ai-row[data-char="owl"] .ai-input:focus{border-color:var(--owl);box-shadow:0 0 15px rgba(249,115,22,.3);}
+  .ai-row[data-char="wolf"] .ai-input:focus{border-color:var(--wolf);box-shadow:0 0 15px rgba(56,189,248,.3);}
+  .ai-row[data-char="rabbit"] .ai-input:focus{border-color:var(--rabbit);box-shadow:0 0 15px rgba(244,114,182,.3);}
+
+  /* Цвет значения */
+  .ai-row[data-char="lion"] .ai-input{color:var(--lion);}
+  .ai-row[data-char="owl"] .ai-input{color:var(--owl);}
+  .ai-row[data-char="wolf"] .ai-input{color:var(--wolf);}
+  .ai-row[data-char="rabbit"] .ai-input{color:var(--rabbit);}
+
+  /* ===== Индикатор агрессии (точки) ===== */
+  .ai-dots{
+    display:flex;
+    gap:3px;
+    align-items:center;
+  }
+  .ai-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--border);
+    transition:all .2s;
+  }
+  .ai-dot.on{
+    background:var(--gold);
+    box-shadow:0 0 6px var(--gold);
+  }
+  .ai-dot.on.high{
+    background:var(--danger);
+    box-shadow:0 0 8px var(--danger);
+  }
+
+  /* ===== Пресеты ===== */
+  .presets-panel{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+  }
+  .presets-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));
+    gap:10px;
+  }
+  .preset-btn{
+    padding:14px 10px;
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    cursor:pointer;
+    font:inherit;
+    font-size:.85rem;
+    font-weight:600;
+    transition:all .2s;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    text-align:center;
+  }
+  .preset-btn:hover{
+    transform:translateY(-3px);
+    border-color:var(--accent);
+    box-shadow:0 10px 25px rgba(56,189,248,.2);
+  }
+  .preset-btn .preset-emoji{font-size:1.8rem;}
+  .preset-btn .preset-name{font-size:.85rem;}
+  .preset-btn .preset-values{font-size:.7rem;color:var(--muted);font-family:monospace;}
+
+  .preset-btn.easy:hover{border-color:var(--success);}
+  .preset-btn.normal:hover{border-color:var(--gold);}
+  .preset-btn.hard:hover{border-color:#f97316;}
+  .preset-btn.nightmare:hover{border-color:var(--danger);}
+  .preset-btn.random:hover{border-color:var(--accent2);}
+  .preset-btn.single:hover{border-color:var(--accent);}
+
+  /* ===== Инфо о сложности ===== */
+  .difficulty-panel{
+    background:linear-gradient(135deg, rgba(30,41,59,.8), rgba(13,20,32,.8));
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:20px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .difficulty-info{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .difficulty-emoji{
+    font-size:3rem;
+    filter:drop-shadow(0 0 15px currentColor);
+  }
+  .difficulty-text .label{
+    font-size:.75rem;
+    color:var(--muted);
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .difficulty-text .level{
+    font-size:1.5rem;
+    font-weight:900;
+    margin-top:4px;
+  }
+  .difficulty-text .sum{
+    font-size:.85rem;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .difficulty-text .sum b{
+    color:var(--accent);
+    font-size:1.1rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .difficulty-stars{
+    display:flex;
+    gap:4px;
+    font-size:1.6rem;
+  }
+
+  /* Цвета уровней */
+  .difficulty-panel[data-level="walk"]{border-color:var(--muted);}
+  .difficulty-panel[data-level="easy"]{border-color:var(--success);}
+  .difficulty-panel[data-level="normal"]{border-color:var(--gold);}
+  .difficulty-panel[data-level="hard"]{border-color:#f97316;}
+  .difficulty-panel[data-level="nightmare"]{border-color:var(--danger);}
+  .difficulty-panel[data-level="legend"]{
+    border-color:var(--star);
+    animation:legendPulse 2s infinite;
+  }
+  @keyframes legendPulse{
+    0%,100%{box-shadow:0 0 20px rgba(244,114,182,.2);}
+    50%{box-shadow:0 0 40px rgba(244,114,182,.5);}
+  }
+
+  /* ===== Кнопки внизу ===== */
+  .actions{
+    display:flex;
+    gap:12px;
+    width:100%;
+    max-width:900px;
+    margin-top:20px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .action-btn{
+    flex:1;
+    min-width:200px;
+    padding:18px 24px;
+    border-radius:14px;
+    border:2px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    font:inherit;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .action-btn:hover{
+    transform:translateY(-3px);
+  }
+  .action-btn.start{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0f172a;
+    border-color:transparent;
+    box-shadow:0 10px 30px rgba(56,189,248,.3);
+  }
+  .action-btn.start:hover{
+    box-shadow:0 15px 40px rgba(56,189,248,.5);
+  }
+  .action-btn.start:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+  .action-btn.reset{
+    background:rgba(239,68,68,.1);
+    border-color:rgba(239,68,68,.4);
+    color:#fca5a5;
+  }
+  .action-btn.reset:hover{
+    background:rgba(239,68,68,.2);
+    border-color:var(--danger);
+  }
+  .action-btn.back{
+    background:rgba(30,41,59,.5);
+  }
+  .action-btn.back:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+  }
+
+  /* ===== Инфо-баннер ===== */
+  .info-banner{
+    position:relative;z-index:2;
+    margin-top:20px;
+    max-width:900px;
+    width:100%;
+    background:rgba(30,41,59,.5);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:12px;
+    padding:14px 18px;
+    color:var(--muted);
+    font-size:.85rem;
+    line-height:1.6;
+  }
+  .info-banner b{color:var(--accent);}
+  .info-banner kbd{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:1px 6px;
+    font-family:monospace;
+    font-size:.85em;
+    color:var(--gold);
+  }
+
+  /* ===== Toast ===== */
+  #toast{
+    position:fixed;top:20px;left:50%;
+    transform:translateX(-50%) translateY(-100px);
+    background:var(--accent);color:#0f172a;
+    padding:12px 24px;border-radius:10px;
+    font-weight:700;z-index:300;
+    transition:transform .3s;
+    box-shadow:0 10px 30px rgba(56,189,248,.4);
+    pointer-events:none;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  #toast.gold{background:var(--gold);}
+  #toast.danger{background:var(--danger);color:#fff;}
+  #toast.success{background:var(--success);}
+
+  /* ===== Мобильный ===== */
+  @media (max-width:600px){
+    .header h1{font-size:1.5rem;letter-spacing:2px;}
+    .back-btn{padding:8px 12px;font-size:.8rem;}
+    .ai-row{
+      grid-template-columns:1fr;
+      gap:12px;
+      text-align:center;
+    }
+    .ai-char{justify-content:center;}
+    .ai-dots{justify-content:center;}
+    .ai-control{justify-content:center;}
+    .ai-btn{width:40px;height:40px;font-size:1.2rem;}
+    .ai-input{width:70px;height:40px;font-size:1.3rem;}
+    .presets-grid{grid-template-columns:repeat(2,1fr);}
+    .difficulty-panel{flex-direction:column;text-align:center;}
+    .action-btn{min-width:100%;padding:14px 18px;font-size:.9rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="header">
+  <a href="nights.html" class="back-btn">← Назад</a>
+  <h1>КАСТОМНАЯ НОЧЬ</h1>
+  <div class="subtitle">Настройте сложность аниматроников</div>
+</div>
+
+<div class="main-grid">
+
+  <!-- Настройки агрессии -->
+  <div class="settings-panel">
+    <div class="panel-title">🎭 УРОВЕНЬ АГРЕССИИ</div>
+
+    <!-- Лев -->
+    <div class="ai-row" data-char="lion">
+      <div class="ai-char">
+        <span class="ai-emoji" style="color:var(--lion)">🦁</span>
+        <div>
+          <div class="ai-name">Солнечный Лев</div>
+          <div class="ai-role">Лето · левая дверь</div>
+        </div>
+      </div>
+      <div class="ai-dots" id="dots-lion"></div>
+      <div class="ai-control">
+        <button class="ai-btn minus" data-action="minus" data-char="lion">−</button>
+        <div class="ai-input-wrap">
+          <input type="number" class="ai-input" id="input-lion" min="0" max="20" value="0">
+        </div>
+        <button class="ai-btn plus" data-action="plus" data-char="lion">+</button>
+      </div>
+    </div>
+
+    <!-- Сова -->
+    <div class="ai-row" data-char="owl">
+      <div class="ai-char">
+        <span class="ai-emoji" style="color:var(--owl)">🦉</span>
+        <div>
+          <div class="ai-name">Мудрая Сова</div>
+          <div class="ai-role">Осень · сверху</div>
+        </div>
+      </div>
+      <div class="ai-dots" id="dots-owl"></div>
+      <div class="ai-control">
+        <button class="ai-btn minus" data-action="minus" data-char="owl">−</button>
+        <div class="ai-input-wrap">
+          <input type="number" class="ai-input" id="input-owl" min="0" max="20" value="0">
+        </div>
+        <button class="ai-btn plus" data-action="plus" data-char="owl">+</button>
+      </div>
+    </div>
+
+    <!-- Волк -->
+    <div class="ai-row" data-char="wolf">
+      <div class="ai-char">
+        <span class="ai-emoji" style="color:var(--wolf)">🐺</span>
+        <div>
+          <div class="ai-name">Ледяной Волк</div>
+          <div class="ai-role">Зима · замораживает</div>
+        </div>
+      </div>
+      <div class="ai-dots" id="dots-wolf"></div>
+      <div class="ai-control">
+        <button class="ai-btn minus" data-action="minus" data-char="wolf">−</button>
+        <div class="ai-input-wrap">
+          <input type="number" class="ai-input" id="input-wolf" min="0" max="20" value="0">
+        </div>
+        <button class="ai-btn plus" data-action="plus" data-char="wolf">+</button>
+      </div>
+    </div>
+
+    <!-- Заяц -->
+    <div class="ai-row" data-char="rabbit">
+      <div class="ai-char">
+        <span class="ai-emoji" style="color:var(--rabbit)">🐰</span>
+        <div>
+          <div class="ai-name">Шаловливый Заяц</div>
+          <div class="ai-role">Весна · случайная дверь</div>
+        </div>
+      </div>
+      <div class="ai-dots" id="dots-rabbit"></div>
+      <div class="ai-control">
+        <button class="ai-btn minus" data-action="minus" data-char="rabbit">−</button>
+        <div class="ai-input-wrap">
+          <input type="number" class="ai-input" id="input-rabbit" min="0" max="20" value="0">
+        </div>
+        <button class="ai-btn plus" data-action="plus" data-char="rabbit">+</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Пресеты -->
+  <div class="presets-panel">
+    <div class="panel-title">⚡ БЫСТРЫЕ ПРЕСЕТЫ</div>
+    <div class="presets-grid" id="presetsGrid"></div>
+  </div>
+
+  <!-- Инфо о сложности -->
+  <div class="difficulty-panel" id="difficultyPanel" data-level="walk">
+    <div class="difficulty-info">
+      <div class="difficulty-emoji" id="diffEmoji">😴</div>
+      <div class="difficulty-text">
+        <div class="label">Сложность</div>
+        <div class="level" id="diffLevel">Прогулка</div>
+        <div class="sum">Сумма агрессии: <b id="diffSum">0</b></div>
+      </div>
+    </div>
+    <div class="difficulty-stars" id="diffStars">⭐</div>
+  </div>
+
+  <!-- Кнопки действий -->
+  <div class="actions">
+    <button class="action-btn reset" onclick="resetAI()">🔄 Сбросить</button>
+    <button class="action-btn start" id="startBtn" onclick="startCustomNight()">▶️ Начать ночь</button>
+    <button class="action-btn back" onclick="location.href='nights.html'">← Назад</button>
+  </div>
+
+</div>
+
+<div class="info-banner">
+  <b>💡 Управление:</b>
+  вводите цифры <kbd>0</kbd>–<kbd>20</kbd> в поле,
+  используйте <kbd>+</kbd> / <kbd>−</kbd> или стрелки <kbd>↑</kbd> <kbd>↓</kbd> на клавиатуре.
+  Максимум агрессии — 20 на каждого аниматроника.
+  Общая сумма определяет уровень сложности и награду звёздами.
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// custom-night.html — Настройка кастомной ночи
+// ============================================================
+
+const CHARS = ['lion', 'owl', 'wolf', 'rabbit'];
+
+const PRESETS = [
+  { id:'easy',      emoji:'😌', name:'Легко',       values:[2,2,2,2],     class:'easy' },
+  { id:'normal',    emoji:'😐', name:'Норма',       values:[5,5,5,5],     class:'normal' },
+  { id:'hard',      emoji:'😨', name:'Сложно',      values:[10,10,10,10], class:'hard' },
+  { id:'nightmare', emoji:'💀', name:'Кошмар',      values:[20,20,20,20], class:'nightmare' },
+  { id:'random',    emoji:'🎲', name:'Случайно',    values:null,          class:'random' },
+  { id:'lion',      emoji:'🦁', name:'Только Лев',  values:[20,0,0,0],    class:'single' },
+  { id:'owl',       emoji:'🦉', name:'Только Сова', values:[0,20,0,0],    class:'single' },
+  { id:'wolf',      emoji:'🐺', name:'Только Волк', values:[0,0,20,0],    class:'single' },
+  { id:'rabbit',    emoji:'🐰', name:'Только Заяц', values:[0,0,0,20],    class:'single' },
+];
+
+const $ = id => document.getElementById(id);
+
+// ===== Звёзды =====
+(function makeStars(){
+  const container = $('stars');
+  for (let i = 0; i < 80; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.opacity = Math.random() * 0.7 + 0.1;
+    container.appendChild(s);
+  }
+})();
+
+// ===== Toast =====
+function showToast(text, type = ''){
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = type; }, 2000);
+}
+
+// ===== Работа с AI =====
+function getAI(){
+  const ai = SP.getCustomAI();
+  return {
+    lion: ai.lion || 0,
+    owl: ai.owl || 0,
+    wolf: ai.wolf || 0,
+    rabbit: ai.rabbit || 0,
+  };
+}
+
+function setAI(ai){
+  SP.setCustomAI(ai);
+  updateAllInputs();
+  updateDots();
+  updateDifficulty();
+}
+
+function setChar(char, value){
+  value = Math.max(0, Math.min(20, parseInt(value) || 0));
+  const ai = getAI();
+  ai[char] = value;
+  SP.setCustomAI(ai);
+  const input = $('input-' + char);
+  if (input) input.value = value;
+  updateDots();
+  updateDifficulty();
+}
+
+function changeChar(char, delta){
+  const ai = getAI();
+  const newVal = Math.max(0, Math.min(20, (ai[char] || 0) + delta));
+  setChar(char, newVal);
+}
+
+// ===== Обновление интерфейса =====
+function updateAllInputs(){
+  const ai = getAI();
+  CHARS.forEach(c => {
+    const input = $('input-' + c);
+    if (input) input.value = ai[c];
+  });
+}
+
+function updateDots(){
+  const ai = getAI();
+  CHARS.forEach(c => {
+    const dotsEl = $('dots-' + c);
+    if (!dotsEl) return;
+    const val = ai[c];
+    // 20 точек, показываем заполнение
+    let html = '';
+    const visibleDots = 10; // компактно
+    const perDot = 2; // 1 точка = 2 агрессии
+    for (let i = 0; i < visibleDots; i++){
+      const threshold = (i + 1) * perDot;
+      const on = val >= threshold;
+      const half = !on && val > i * perDot;
+      html += `<div class="ai-dot${on ? ' on' : ''}${val > 14 && on ? ' high' : ''}"></div>`;
+    }
+    dotsEl.innerHTML = html;
+  });
+}
+
+function updateDifficulty(){
+  const ai = getAI();
+  const sum = ai.lion + ai.owl + ai.wolf + ai.rabbit;
+
+  let emoji, level, stars, key;
+  if (sum === 0){
+    emoji = '😴'; level = 'Прогулка'; stars = '⭐'; key = 'walk';
+  } else if (sum <= 20){
+    emoji = '😌'; level = 'Разминка'; stars = '⭐'; key = 'easy';
+  } else if (sum <= 40){
+    emoji = '😐'; level = 'Серьёзно'; stars = '⭐⭐'; key = 'normal';
+  } else if (sum <= 60){
+    emoji = '😨'; level = 'Хардкор'; stars = '⭐⭐⭐'; key = 'hard';
+  } else if (sum <= 79){
+    emoji = '💀'; level = 'Кошмар'; stars = '⭐⭐⭐⭐'; key = 'nightmare';
+  } else {
+    emoji = '👑'; level = '20/20/20/20'; stars = '⭐⭐⭐⭐⭐'; key = 'legend';
+  }
+
+  $('diffEmoji').textContent = emoji;
+  $('diffLevel').textContent = level;
+  $('diffSum').textContent = sum;
+  $('diffStars').textContent = stars;
+  $('difficultyPanel').dataset.level = key;
+
+  // Кнопка старта
+  $('startBtn').disabled = sum === 0;
+  if (sum === 0){
+    $('startBtn').textContent = '⛔ Все на 0';
+  } else {
+    $('startBtn').textContent = '▶️ Начать ночь';
+  }
+}
+
+// ===== Пресеты =====
+function renderPresets(){
+  const grid = $('presetsGrid');
+  grid.innerHTML = PRESETS.map(p => `
+    <button class="preset-btn ${p.class}" data-preset="${p.id}">
+      <span class="preset-emoji">${p.emoji}</span>
+      <span class="preset-name">${p.name}</span>
+      <span class="preset-values">${p.values ? p.values.join('/') : '?'}</span>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.onclick = () => applyPreset(btn.dataset.preset);
+  });
+}
+
+function applyPreset(id){
+  const preset = PRESETS.find(p => p.id === id);
+  if (!preset) return;
+
+  let values;
+  if (preset.values === null){
+    // Случайно
+    values = CHARS.map(() => Math.floor(Math.random() * 21));
+  } else {
+    values = preset.values;
+  }
+
+  const ai = {
+    lion: values[0],
+    owl: values[1],
+    wolf: values[2],
+    rabbit: values[3],
+  };
+  setAI(ai);
+  showToast(`${preset.emoji} ${preset.name}`, 'gold');
+}
+
+// ===== Сброс =====
+function resetAI(){
+  setAI({ lion:0, owl:0, wolf:0, rabbit:0 });
+  showToast('🔄 Сброшено', 'gold');
+}
+
+// ===== Старт ночи =====
+function startCustomNight(){
+  const ai = getAI();
+  const sum = ai.lion + ai.owl + ai.wolf + ai.rabbit;
+  if (sum === 0){
+    showToast('⚠️ Все аниматроники на 0', 'danger');
+    return;
+  }
+  // Сохраняем настройки
+  SP.setCustomAI(ai);
+  // Запускаем игру с параметром custom=lion,owl,wolf,rabbit
+  const custom = `${ai.lion},${ai.owl},${ai.wolf},${ai.rabbit}`;
+  location.href = `game.html?custom=${custom}`;
+}
+
+// ===== Обработчики ввода =====
+CHARS.forEach(char => {
+  const input = $('input-' + char);
+  if (!input) return;
+
+  // Ограничение при вводе
+  input.addEventListener('input', e => {
+    let v = e.target.value.replace(/[^0-9]/g, '');
+    if (v === '') v = '0';
+    let n = parseInt(v);
+    if (isNaN(n)) n = 0;
+    if (n > 20) n = 20;
+    if (n < 0) n = 0;
+    e.target.value = n;
+    setChar(char, n);
+  });
+
+  // Ограничение при потере фокуса
+  input.addEventListener('blur', e => {
+    let n = parseInt(e.target.value) || 0;
+    n = Math.max(0, Math.min(20, n));
+    e.target.value = n;
+    setChar(char, n);
+  });
+
+  // Клавиши вверх/вниз
+  input.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp'){
+      e.preventDefault();
+      changeChar(char, e.shiftKey ? 5 : 1);
+    } else if (e.key === 'ArrowDown'){
+      e.preventDefault();
+      changeChar(char, e.shiftKey ? -5 : -1);
+    } else if (e.key === 'Enter'){
+      e.preventDefault();
+      startCustomNight();
+    }
+  });
+});
+
+// Кнопки + / -
+document.querySelectorAll('.ai-btn').forEach(btn => {
+  btn.onclick = () => {
+    const char = btn.dataset.char;
+    const action = btn.dataset.action;
+    changeChar(char, action === 'plus' ? 1 : -1);
+  };
+});
+
+// ===== Старт =====
+renderPresets();
+updateAllInputs();
+updateDots();
+updateDifficulty();
+
+console.log('%c🎨 Seasons Park — custom-night.html','font-size:18px;color:#38bdf8;font-weight:bold;');
+console.log('%cТекущие настройки:', 'color:#a78bfa;', getAI());
+</script>
+</body>
+</html>

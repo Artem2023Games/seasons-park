@@ -1,0 +1,527 @@
+<!--
+  Seasons Park — Night Shift
+  © 2026 Artem2023. Все права защищены.
+  Копирование и распространение без разрешения запрещены.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons Park — Выбор ночи</title>
+<script src="progress.js"></script>
+<style>
+  :root{
+    --bg:#050810;
+    --panel:#0a0f18;
+    --card:#0d1420;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --danger:#ef4444;
+    --success:#4ade80;
+    --gold:#fbbf24;
+    --star:#f472b6;
+    --text:#e2e8f0;
+    --muted:#64748b;
+    --border:#1e293b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(ellipse at 50% 30%, #1a1f3a 0%, #050810 70%);
+    color:var(--text);
+    user-select:none;-webkit-tap-highlight-color:transparent;
+    padding:30px 16px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  /* ===== Звёзды ===== */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{
+    position:absolute;width:2px;height:2px;
+    background:#fff;border-radius:50%;
+    animation:twinkle 3s infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.2;}
+    50%{opacity:1;}
+  }
+
+  /* ===== Заголовок ===== */
+  .header{
+    position:relative;z-index:2;
+    text-align:center;
+    margin-bottom:30px;
+    max-width:800px;
+    width:100%;
+  }
+  .back-btn{
+    position:absolute;top:0;left:0;
+    padding:10px 18px;
+    background:rgba(30,41,59,.7);
+    border:2px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    text-decoration:none;
+    font-size:.9rem;
+    font-weight:600;
+    transition:all .2s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .back-btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateX(-3px);
+  }
+  .header h1{
+    font-size:2.4rem;
+    font-weight:900;
+    letter-spacing:5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .header .subtitle{
+    color:var(--muted);
+    font-size:.9rem;
+    letter-spacing:4px;
+    text-transform:uppercase;
+  }
+
+  /* ===== Прогресс-бар ===== */
+  .progress-summary{
+    position:relative;z-index:2;
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom:30px;
+    width:100%;
+    max-width:800px;
+  }
+  .summary-item{
+    background:rgba(30,41,59,.6);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px 20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:.9rem;
+  }
+  .summary-item .value{
+    font-size:1.3rem;
+    font-weight:700;
+    color:var(--accent);
+  }
+  .summary-item.stars .value{color:var(--star);}
+  .summary-item.completed .value{color:var(--success);}
+
+  /* ===== Сетка ночей ===== */
+  .nights-grid{
+    position:relative;z-index:2;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:16px;
+    width:100%;
+    max-width:900px;
+  }
+
+  .night-card{
+    position:relative;
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:24px 20px;
+    cursor:pointer;
+    transition:all .3s;
+    overflow:hidden;
+    text-align:center;
+  }
+  .night-card:hover:not(.locked){
+    transform:translateY(-5px);
+    border-color:var(--accent);
+    box-shadow:0 15px 40px rgba(56,189,248,.25);
+  }
+
+  /* Замок */
+  .night-card.locked{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+  .night-card.locked::after{
+    content:'🔒';
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:3rem;
+    z-index:3;
+    filter:drop-shadow(0 0 10px rgba(0,0,0,.9));
+  }
+
+  /* Пройдена */
+  .night-card.completed{
+    border-color:var(--success);
+    background:linear-gradient(135deg, rgba(74,222,128,.08), rgba(30,41,59,.5));
+  }
+  .night-card.completed::before{
+    content:'✅';
+    position:absolute;
+    top:12px;right:14px;
+    font-size:1.3rem;
+    z-index:3;
+  }
+
+  /* Текущая (следующая) */
+  .night-card.current{
+    border-color:var(--gold);
+    background:linear-gradient(135deg, rgba(251,191,36,.1), rgba(30,41,59,.5));
+    box-shadow:0 0 30px rgba(251,191,36,.3);
+  }
+  .night-card.current::before{
+    content:'▶️';
+    position:absolute;
+    top:12px;right:14px;
+    font-size:1.3rem;
+    z-index:3;
+  }
+
+  /* Секретная */
+  .night-card.secret{
+    border-color:var(--star);
+    background:linear-gradient(135deg, rgba(244,114,182,.12), rgba(167,139,250,.08), rgba(30,41,59,.5));
+    animation:secretPulse 2.5s infinite;
+  }
+  @keyframes secretPulse{
+    0%,100%{box-shadow:0 0 20px rgba(244,114,182,.3);}
+    50%{box-shadow:0 0 40px rgba(244,114,182,.7);}
+  }
+  .night-card.secret:hover{
+    box-shadow:0 15px 40px rgba(244,114,182,.5);
+  }
+
+  /* Кастомная */
+  .night-card.custom{
+    border-color:var(--accent2);
+    background:linear-gradient(135deg, rgba(167,139,250,.15), rgba(56,189,248,.1), rgba(30,41,59,.5));
+  }
+  .night-card.custom:hover{
+    box-shadow:0 15px 40px rgba(167,139,250,.4);
+  }
+
+  /* Содержимое карточки */
+  .night-emoji{
+    font-size:3.5rem;
+    margin-bottom:10px;
+    display:block;
+    filter:drop-shadow(0 0 15px currentColor);
+  }
+  .night-number{
+    font-size:.75rem;
+    color:var(--muted);
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .night-name{
+    font-size:1.3rem;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .night-season{
+    font-size:.85rem;
+    color:var(--muted);
+    letter-spacing:1px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  .night-desc{
+    font-size:.8rem;
+    color:var(--muted);
+    margin-top:10px;
+    font-style:italic;
+    opacity:.8;
+  }
+
+  /* Запись о рекорде */
+  .night-record{
+    margin-top:10px;
+    font-size:.75rem;
+    color:var(--muted);
+    padding-top:8px;
+    border-top:1px solid var(--border);
+  }
+  .night-record b{color:var(--success);}
+
+  /* ===== Информационная плашка ===== */
+  .info-banner{
+    position:relative;z-index:2;
+    margin-top:30px;
+    max-width:900px;
+    width:100%;
+    background:rgba(30,41,59,.5);
+    border:1px solid var(--border);
+    border-left:4px solid var(--accent);
+    border-radius:12px;
+    padding:16px 20px;
+    color:var(--muted);
+    font-size:.85rem;
+    line-height:1.6;
+  }
+  .info-banner b{color:var(--accent);}
+
+  /* ===== Анимация появления ===== */
+  .night-card{
+    animation:cardIn .4s ease backwards;
+  }
+  @keyframes cardIn{
+    from{opacity:0;transform:translateY(20px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  /* ===== Мобильный ===== */
+  @media (max-width:600px){
+    .header h1{font-size:1.6rem;letter-spacing:3px;}
+    .back-btn{padding:8px 12px;font-size:.8rem;}
+    .nights-grid{grid-template-columns:1fr;gap:12px;}
+    .night-card{padding:18px 16px;}
+    .night-emoji{font-size:2.5rem;}
+    .night-name{font-size:1.1rem;}
+    .summary-item{padding:8px 14px;font-size:.8rem;}
+    .summary-item .value{font-size:1.1rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="header">
+  <a href="index.html" class="back-btn">← Назад</a>
+  <h1>ВЫБОР НОЧИ</h1>
+  <div class="subtitle">Выберите, какую ночь играть</div>
+</div>
+
+<div class="progress-summary" id="progressSummary"></div>
+
+<div class="nights-grid" id="nightsGrid"></div>
+
+<div class="info-banner" id="infoBanner">
+  <b>💡 Подсказка:</b> Проходите ночи по порядку. Каждая новая ночь сложнее предыдущей. Секретные ночи откроются, когда вы пройдёте основные.
+</div>
+
+<script>
+// ============================================================
+// nights.html — Экран выбора ночи
+// ============================================================
+
+const SEASONS = {
+  summer: { name:'Лето',  emoji:'☀️' },
+  autumn: { name:'Осень', emoji:'🍁' },
+  winter: { name:'Зима',  emoji:'❄️' },
+  spring: { name:'Весна', emoji:'🌸' },
+  broken: { name:'Сломанный парк', emoji:'🔥' },
+  secret: { name:'Секретная', emoji:'⭐' },
+};
+
+const NIGHTS = [
+  {
+    num: 1,
+    name: 'Первая ночь',
+    emoji: '🌙',
+    season: 'summer',
+    desc: 'Знакомство с парком',
+    secret: false,
+  },
+  {
+    num: 2,
+    name: 'Осенний ветер',
+    emoji: '🍁',
+    season: 'autumn',
+    desc: 'Листья скрипят под ногами',
+    secret: false,
+  },
+  {
+    num: 3,
+    name: 'Ледяная стужа',
+    emoji: '❄️',
+    season: 'winter',
+    desc: 'Холод проникает в офис',
+    secret: false,
+  },
+  {
+    num: 4,
+    name: 'Весенний дождь',
+    emoji: '🌸',
+    season: 'spring',
+    desc: 'Гроза, свет мигает',
+    secret: false,
+  },
+  {
+    num: 5,
+    name: 'Сломанный парк',
+    emoji: '🔥',
+    season: 'broken',
+    desc: 'Всё сломано. Все активны',
+    secret: false,
+  },
+  {
+    num: 6,
+    name: 'Секретная ночь',
+    emoji: '⭐',
+    season: 'secret',
+    desc: 'Парк хранит тайну...',
+    secret: true,
+  },
+];
+
+// ===== Звёзды =====
+(function makeStars(){
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 100; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.opacity = Math.random() * 0.7 + 0.1;
+    if (Math.random() > 0.9){
+      s.style.width = '3px';
+      s.style.height = '3px';
+      s.style.boxShadow = '0 0 6px #fff';
+    }
+    container.appendChild(s);
+  }
+})();
+
+// ===== Прогресс-сводка =====
+function renderSummary(){
+  const progress = SP.get();
+  const stars = SP.getStars();
+  const completed = [1,2,3,4,5,6].filter(n => SP.isNightCompleted(n)).length;
+  const current = SP.getCurrentNight();
+
+  document.getElementById('progressSummary').innerHTML = `
+    <div class="summary-item">
+      🌙 Текущая ночь: <span class="value">${current}</span>
+    </div>
+    <div class="summary-item completed">
+      ✅ Пройдено: <span class="value">${completed}/6</span>
+    </div>
+    <div class="summary-item stars">
+      ⭐ Звёзд: <span class="value">${stars}</span>
+    </div>
+  `;
+}
+
+// ===== Сетка ночей =====
+function renderNights(){
+  const grid = document.getElementById('nightsGrid');
+  grid.innerHTML = '';
+  const currentNight = SP.getCurrentNight();
+
+  NIGHTS.forEach((night, idx) => {
+    const unlocked = SP.isNightUnlocked(night.num);
+    const completed = SP.isNightCompleted(night.num);
+
+    // Секретная ночь — вообще не показывать, если не открыта
+    if (night.secret && !unlocked){
+      return;
+    }
+
+    const season = SEASONS[night.season] || SEASONS.summer;
+
+    const card = document.createElement('div');
+    card.className = 'night-card';
+    card.style.animationDelay = (idx * 60) + 'ms';
+
+    if (!unlocked) card.classList.add('locked');
+    if (completed) card.classList.add('completed');
+    if (unlocked && !completed && night.num === currentNight) card.classList.add('current');
+    if (night.secret) card.classList.add('secret');
+
+    const record = SP.getRecord(night.num);
+    let recordText = '';
+    if (record.attempts > 0){
+      const best = record.best
+        ? (record.best / 1000).toFixed(1) + ' сек'
+        : '—';
+      recordText = `
+        <div class="night-record">
+          Попыток: <b>${record.attempts}</b> · Лучшее: <b>${best}</b>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <span class="night-emoji">${night.emoji}</span>
+      <div class="night-number">Ночь ${night.num}</div>
+      <div class="night-name">${night.name}</div>
+      <div class="night-season">${season.emoji} ${season.name}</div>
+      <div class="night-desc">${night.desc}</div>
+      ${recordText}
+    `;
+
+    if (unlocked){
+      card.onclick = () => startNight(night.num);
+    }
+
+    grid.appendChild(card);
+  });
+
+  // Кастомная ночь — отдельная карточка, если открыта
+  if (SP.isCustomUnlocked()){
+    const custom = document.createElement('div');
+    custom.className = 'night-card custom';
+    custom.style.animationDelay = '500ms';
+    const sum = SP.getCustomSum();
+    const diff = SP.getCustomDifficulty();
+    custom.innerHTML = `
+      <span class="night-emoji">🎨</span>
+      <div class="night-number">Особый режим</div>
+      <div class="night-name">Кастомная ночь</div>
+      <div class="night-season">${diff.emoji} ${diff.level}</div>
+      <div class="night-desc">Создайте свою сложность</div>
+      <div class="night-record">
+        Текущая сумма: <b>${sum}</b> / 80
+      </div>
+    `;
+    custom.onclick = () => location.href = 'custom-night.html';
+    grid.appendChild(custom);
+  }
+}
+
+// ===== Запуск ночи =====
+function startNight(n){
+  // Проверяем, что ночь открыта
+  if (!SP.isNightUnlocked(n)){
+    return;
+  }
+  // Записываем текущую
+  SP.setCurrentNight(n);
+  // Переходим в игру
+  location.href = `game.html?night=${n}`;
+}
+
+// ===== Обновление при возврате =====
+window.addEventListener('focus', () => {
+  renderSummary();
+  renderNights();
+});
+
+// ===== Старт =====
+renderSummary();
+renderNights();
+
+console.log('%c🌙 Seasons Park — nights.html','font-size:18px;color:#38bdf8;font-weight:bold;');
+console.log('%cПрогресс:', 'color:#4ade80;', SP.get());
+</script>
+</body>
+</html>

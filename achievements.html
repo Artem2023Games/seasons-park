@@ -1,0 +1,863 @@
+<!--
+  Seasons Park — Night Shift
+  © 2026 Artem2023. Все права защищены.
+  Копирование и распространение без разрешения запрещены.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons Park — Достижения</title>
+<script src="progress.js"></script>
+<style>
+  :root{
+    --bg:#050810;
+    --panel:#0a0f18;
+    --card:#0d1420;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --danger:#ef4444;
+    --success:#4ade80;
+    --gold:#fbbf24;
+    --star:#f472b6;
+    --text:#e2e8f0;
+    --muted:#64748b;
+    --border:#1e293b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(ellipse at 50% 20%, #1a1f3a 0%, #050810 70%);
+    color:var(--text);
+    user-select:none;-webkit-tap-highlight-color:transparent;
+    padding:30px 16px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  /* Звёзды */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{
+    position:absolute;width:2px;height:2px;
+    background:#fff;border-radius:50%;
+    animation:twinkle 3s infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.2;}
+    50%{opacity:1;}
+  }
+
+  /* Заголовок */
+  .header{
+    position:relative;z-index:2;
+    text-align:center;
+    margin-bottom:30px;
+    max-width:900px;
+    width:100%;
+  }
+  .back-btn{
+    position:absolute;top:0;left:0;
+    padding:10px 18px;
+    background:rgba(30,41,59,.7);
+    border:2px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    text-decoration:none;
+    font-size:.9rem;
+    font-weight:600;
+    transition:all .2s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .back-btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateX(-3px);
+  }
+  .header h1{
+    font-size:2.4rem;
+    font-weight:900;
+    letter-spacing:5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .header .subtitle{
+    color:var(--muted);
+    font-size:.9rem;
+    letter-spacing:4px;
+    text-transform:uppercase;
+  }
+
+  /* Сводка */
+  .summary{
+    position:relative;z-index:2;
+    max-width:900px;
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 20px;
+    margin-bottom:20px;
+  }
+  .summary-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .summary-text{
+    color:var(--muted);
+    font-size:.9rem;
+  }
+  .summary-text b{
+    color:var(--accent);
+    font-size:1.2rem;
+  }
+  .summary-stars{
+    color:var(--star);
+    font-size:.9rem;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .summary-stars b{
+    color:var(--star);
+    font-size:1.2rem;
+  }
+  .progress-track{
+    flex:1;
+    min-width:200px;
+    height:10px;
+    background:#0a0f18;
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border-radius:5px;
+    transition:width .5s;
+    width:0%;
+  }
+
+  /* Категории */
+  .tabs{
+    position:relative;z-index:2;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom:20px;
+    max-width:900px;
+    width:100%;
+  }
+  .tab{
+    padding:8px 16px;
+    background:rgba(30,41,59,.6);
+    border:2px solid var(--border);
+    border-radius:20px;
+    color:var(--muted);
+    cursor:pointer;
+    transition:all .2s;
+    font-size:.85rem;
+    font-weight:600;
+  }
+  .tab:hover{border-color:var(--accent);color:var(--accent);}
+  .tab.active{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0f172a;
+    border-color:transparent;
+  }
+
+  /* Сетка достижений */
+  .achievements{
+    position:relative;z-index:2;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:14px;
+    width:100%;
+    max-width:900px;
+  }
+
+  .ach{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    transition:all .3s;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .ach.unlocked{
+    border-color:var(--gold);
+    background:linear-gradient(135deg, rgba(251,191,36,.08), rgba(13,20,32,.8));
+    box-shadow:0 0 20px rgba(251,191,36,.15);
+  }
+  .ach.unlocked::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:3px;
+    background:linear-gradient(90deg,var(--gold),var(--star),var(--gold));
+    animation:goldShine 3s linear infinite;
+  }
+  @keyframes goldShine{
+    0%{background-position:0% 50%;}
+    100%{background-position:200% 50%;}
+  }
+  .ach.locked{
+    opacity:.5;
+  }
+  .ach.locked .ach-emoji{
+    filter:grayscale(1);
+  }
+
+  .ach-emoji{
+    font-size:2.2rem;
+    min-width:44px;
+    text-align:center;
+    filter:drop-shadow(0 0 10px currentColor);
+  }
+  .ach.unlocked .ach-emoji{
+    animation:achPop .5s ease;
+  }
+  @keyframes achPop{
+    0%{transform:scale(0);}
+    50%{transform:scale(1.2);}
+    100%{transform:scale(1);}
+  }
+  .ach-info{flex:1;min-width:0;}
+  .ach-title{
+    font-size:.95rem;
+    font-weight:700;
+    margin-bottom:4px;
+    color:var(--text);
+  }
+  .ach.unlocked .ach-title{color:var(--gold);}
+  .ach-desc{
+    font-size:.78rem;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .ach-reward{
+    font-size:.75rem;
+    color:var(--star);
+    margin-top:6px;
+    font-weight:700;
+  }
+
+  /* Модалка */
+  .modal-bg{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.85);
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    backdrop-filter:blur(4px);
+  }
+  .modal-bg.open{display:flex;}
+  .modal{
+    background:var(--card);
+    border:2px solid var(--gold);
+    border-radius:16px;
+    padding:30px;
+    max-width:400px;
+    width:100%;
+    text-align:center;
+    animation:modalIn .3s ease;
+    box-shadow:0 0 60px rgba(251,191,36,.4);
+  }
+  @keyframes modalIn{
+    from{transform:scale(.8);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+  }
+  .modal-emoji{
+    font-size:5rem;
+    margin-bottom:16px;
+    animation:starPulse 1.5s infinite;
+  }
+  @keyframes starPulse{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 20px var(--gold));}
+    50%{transform:scale(1.15);filter:drop-shadow(0 0 40px var(--gold));}
+  }
+  .modal h2{
+    color:var(--gold);
+    font-size:1.3rem;
+    margin-bottom:8px;
+    letter-spacing:2px;
+  }
+  .modal .ach-name{
+    font-size:1.1rem;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .modal .ach-desc-text{
+    color:var(--muted);
+    font-size:.9rem;
+    margin-bottom:16px;
+    line-height:1.6;
+  }
+  .modal .reward-badge{
+    display:inline-block;
+    padding:8px 18px;
+    background:linear-gradient(90deg,var(--star),var(--accent2));
+    border-radius:20px;
+    color:#0f172a;
+    font-weight:700;
+    font-size:.9rem;
+    margin-bottom:20px;
+  }
+  .modal button{
+    padding:12px 28px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border:none;
+    border-radius:10px;
+    color:#0f172a;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .15s;
+    font-size:.95rem;
+  }
+  .modal button:hover{transform:translateY(-2px);}
+
+  /* Toast */
+  #toast{
+    position:fixed;top:20px;left:50%;
+    transform:translateX(-50%) translateY(-100px);
+    background:var(--gold);color:#0f172a;
+    padding:12px 24px;border-radius:10px;
+    font-weight:700;z-index:300;
+    transition:transform .3s;
+    box-shadow:0 10px 30px rgba(251,191,36,.4);
+    pointer-events:none;
+    max-width:90vw;
+    text-align:center;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  #toast.success{background:var(--success);}
+  #toast.star{background:var(--star);}
+
+  @media (max-width:600px){
+    .header h1{font-size:1.6rem;letter-spacing:3px;}
+    .back-btn{padding:8px 12px;font-size:.8rem;}
+    .achievements{grid-template-columns:1fr;}
+    .tab{padding:6px 12px;font-size:.8rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="header">
+  <a href="index.html" class="back-btn">← В меню</a>
+  <h1>ДОСТИЖЕНИЯ</h1>
+  <div class="subtitle">Твои победы в Seasons Park</div>
+</div>
+
+<div class="summary">
+  <div class="summary-row">
+    <div class="summary-text">
+      Открыто: <b id="unlockedCount">0</b> / <span id="totalCount">0</span>
+    </div>
+    <div class="summary-stars">
+      ⭐ Звёзд получено: <b id="starsFromAch">0</b>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="achievements" id="achievementsGrid"></div>
+
+<!-- Модалка -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-emoji" id="modalEmoji">🏆</div>
+    <h2>ДОСТИЖЕНИЕ ОТКРЫТО</h2>
+    <div class="ach-name" id="modalName">—</div>
+    <div class="ach-desc-text" id="modalDesc">—</div>
+    <div class="reward-badge" id="modalReward">+⭐</div>
+    <button onclick="closeModal()">Отлично!</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// achievements.html — 30+ достижений
+// ============================================================
+
+const STORAGE_KEY = 'sp_achievements';
+
+// ===== Список достижений =====
+const ACHIEVEMENTS = [
+  // ===== НОЧИ =====
+  {
+    id: 'night1', cat: 'nights', emoji: '🌙',
+    title: 'Первая ночь',
+    desc: 'Пройти ночь 1',
+    check: () => SP.isNightCompleted(1),
+    stars: 1
+  },
+  {
+    id: 'night2', cat: 'nights', emoji: '🍁',
+    title: 'Осенний ветер',
+    desc: 'Пройти ночь 2',
+    check: () => SP.isNightCompleted(2),
+    stars: 1
+  },
+  {
+    id: 'night3', cat: 'nights', emoji: '❄️',
+    title: 'Ледяная стужа',
+    desc: 'Пройти ночь 3',
+    check: () => SP.isNightCompleted(3),
+    stars: 1
+  },
+  {
+    id: 'night4', cat: 'nights', emoji: '🌸',
+    title: 'Весенний дождь',
+    desc: 'Пройти ночь 4',
+    check: () => SP.isNightCompleted(4),
+    stars: 1
+  },
+  {
+    id: 'night5', cat: 'nights', emoji: '🔥',
+    title: 'Сломанный парк',
+    desc: 'Пройти ночь 5',
+    check: () => SP.isNightCompleted(5),
+    stars: 2
+  },
+  {
+    id: 'night6', cat: 'nights', emoji: '⭐',
+    title: 'Секретная ночь',
+    desc: 'Пройти секретную ночь 6',
+    check: () => SP.isNightCompleted(6),
+    stars: 3
+  },
+  {
+    id: 'allNights', cat: 'nights', emoji: '👑',
+    title: 'Все ночи',
+    desc: 'Пройти все 6 ночей',
+    check: () => [1,2,3,4,5,6].every(n => SP.isNightCompleted(n)),
+    stars: 5
+  },
+
+  // ===== ЗВЁЗДЫ =====
+  {
+    id: 'stars5', cat: 'stars', emoji: '⭐',
+    title: 'Первые звёзды',
+    desc: 'Собрать 5 звёзд',
+    check: () => SP.getStars() >= 5,
+    stars: 1
+  },
+  {
+    id: 'stars10', cat: 'stars', emoji: '🌟',
+    title: 'Звёздный путь',
+    desc: 'Собрать 10 звёзд',
+    check: () => SP.getStars() >= 10,
+    stars: 2
+  },
+  {
+    id: 'stars25', cat: 'stars', emoji: '💫',
+    title: 'Созвездие',
+    desc: 'Собрать 25 звёзд',
+    check: () => SP.getStars() >= 25,
+    stars: 3
+  },
+  {
+    id: 'stars50', cat: 'stars', emoji: '✨',
+    title: 'Галактика',
+    desc: 'Собрать 50 звёзд',
+    check: () => SP.getStars() >= 50,
+    stars: 5
+  },
+
+  // ===== КАСТОМНАЯ =====
+  {
+    id: 'customOpen', cat: 'custom', emoji: '🎨',
+    title: 'Создатель',
+    desc: 'Открыть кастомную ночь',
+    check: () => SP.isCustomUnlocked(),
+    stars: 2
+  },
+  {
+    id: 'customEasy', cat: 'custom', emoji: '😌',
+    title: 'Разминка',
+    desc: 'Пройти кастомную ночь на сумму 20',
+    check: () => false, // отмечается при победе
+    stars: 1
+  },
+  {
+    id: 'customHard', cat: 'custom', emoji: '😨',
+    title: 'Хардкор',
+    desc: 'Пройти кастомную ночь на сумму 60',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'customLegend', cat: 'custom', emoji: '👑',
+    title: '20/20/20/20',
+    desc: 'Пройти кастомную ночь на 80 очков',
+    check: () => false,
+    stars: 10
+  },
+
+  // ===== ОСОБЫЕ =====
+  {
+    id: 'readStory1', cat: 'special', emoji: '📖',
+    title: 'Любопытный',
+    desc: 'Прочитать первую главу истории',
+    check: () => {
+      try{
+        const story = JSON.parse(localStorage.getItem('sp_story_progress') || '{}');
+        return Object.keys(story).length >= 1;
+      }catch{ return false; }
+    },
+    stars: 1
+  },
+  {
+    id: 'readStoryAll', cat: 'special', emoji: '📚',
+    title: 'Историк',
+    desc: 'Прочитать все главы истории',
+    check: () => {
+      try{
+        const story = JSON.parse(localStorage.getItem('sp_story_progress') || '{}');
+        return Object.keys(story).length >= 8;
+      }catch{ return false; }
+    },
+    stars: 3
+  },
+  {
+    id: 'walkPark', cat: 'special', emoji: '🎡',
+    title: 'Прогулка',
+    desc: 'Посетить Прогулку по парку',
+    check: () => false, // отмечается при заходе
+    stars: 1
+  },
+  {
+    id: 'allCameras', cat: 'special', emoji: '📹',
+    title: 'Наблюдатель',
+    desc: 'Посмотреть все 10 камер в игре',
+    check: () => false,
+    stars: 2
+  },
+
+  // ===== СЕКРЕТНЫЕ =====
+  {
+    id: 'secretStage', cat: 'secret', emoji: '🎭',
+    title: 'Все на сцене',
+    desc: 'Увидеть всех 4 аниматроников на сцене',
+    check: () => false,
+    stars: 2
+  },
+  {
+    id: 'secretFastWin', cat: 'secret', emoji: '⚡',
+    title: 'Скороход',
+    desc: 'Пройти ночь быстрее 8 минут',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'secretNoDoors', cat: 'secret', emoji: '🚪',
+    title: 'Без дверей',
+    desc: 'Пройти ночь, не закрыв ни одной двери',
+    check: () => false,
+    stars: 5
+  },
+  {
+    id: 'secretAllAch', cat: 'secret', emoji: '🏆',
+    title: 'Коллекционер',
+    desc: 'Открыть все остальные достижения',
+    check: () => false,
+    stars: 10
+  },
+  {
+    id: 'secretNightLion', cat: 'secret', emoji: '🦁',
+    title: 'Львиное сердце',
+    desc: 'Выжить, когда Лев на агрессии 20',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'secretNightOwl', cat: 'secret', emoji: '🦉',
+    title: 'Мудрость совы',
+    desc: 'Выжить, когда Сова на агрессии 20',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'secretNightWolf', cat: 'secret', emoji: '🐺',
+    title: 'Ледяное спокойствие',
+    desc: 'Выжить, когда Волк на агрессии 20',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'secretNightRabbit', cat: 'secret', emoji: '🐰',
+    title: 'Зайчик-побегайчик',
+    desc: 'Выжить, когда Заяц на агрессии 20',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'secretAllChars20', cat: 'secret', emoji: '💀',
+    title: 'Кошмар',
+    desc: 'Пройти ночь со всеми на 20',
+    check: () => false,
+    stars: 10
+  },
+  {
+    id: 'secretNoLight', cat: 'secret', emoji: '🔦',
+    title: 'В темноте',
+    desc: 'Пройти ночь, не включив свет',
+    check: () => false,
+    stars: 5
+  },
+  {
+    id: 'secretPerfect', cat: 'secret', emoji: '💎',
+    title: 'Идеально',
+    desc: 'Пройти ночь без проигрышей',
+    check: () => false,
+    stars: 3
+  },
+  {
+    id: 'secretSpeedrun', cat: 'secret', emoji: '🏃',
+    title: 'Спидран',
+    desc: 'Пройти 5 ночей подряд без проигрыша',
+    check: () => false,
+    stars: 7
+  },
+  {
+    id: 'secretPacifist', cat: 'secret', emoji: '🕊️',
+    title: 'Пацифист',
+    desc: 'Пройти ночь, используя только двери',
+    check: () => false,
+    stars: 4
+  },
+  {
+    id: 'secretGambler', cat: 'secret', emoji: '🎰',
+    title: 'Игрок',
+    desc: 'Проверить все камеры 10 раз',
+    check: () => false,
+    stars: 2
+  },
+];
+
+// ===== Категории =====
+const CATEGORIES = [
+  { id: 'all', name: '🎯 Все', filter: () => true },
+  { id: 'nights', name: '🌙 Ночи', filter: a => a.cat === 'nights' },
+  { id: 'stars', name: '⭐ Звёзды', filter: a => a.cat === 'stars' },
+  { id: 'custom', name: '🎨 Кастом', filter: a => a.cat === 'custom' },
+  { id: 'special', name: '📖 Особые', filter: a => a.cat === 'special' },
+  { id: 'secret', name: '🔒 Секретные', filter: a => a.cat === 'secret' },
+];
+
+const $ = id => document.getElementById(id);
+
+// ===== Хранилище =====
+function getUnlocked(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  }catch{ return {}; }
+}
+
+function unlockAchievement(id, showPopup = true){
+  const data = getUnlocked();
+  if (data[id]) return false;
+
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (!ach) return false;
+
+  data[id] = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+  // Награда — звёзды
+  if (ach.stars > 0){
+    SP.addStars(ach.stars);
+  }
+
+  if (showPopup){
+    showAchievementModal(ach);
+  }
+
+  return true;
+}
+
+// ===== Проверка всех достижений =====
+function checkAchievements(){
+  const data = getUnlocked();
+  let newUnlocks = 0;
+
+  ACHIEVEMENTS.forEach(a => {
+    if (data[a.id]) return;
+    if (a.check()){
+      unlockAchievement(a.id, false);
+      newUnlocks++;
+    }
+  });
+
+  if (newUnlocks > 0){
+    showToast(`🏆 Открыто новых достижений: ${newUnlocks}`, 'gold');
+    renderAchievements();
+  }
+}
+
+// ===== Звёзды =====
+(function makeStars(){
+  const container = $('stars');
+  for (let i = 0; i < 100; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.opacity = Math.random() * 0.7 + 0.1;
+    if (Math.random() > 0.9){
+      s.style.width = '3px';
+      s.style.height = '3px';
+      s.style.boxShadow = '0 0 6px #fff';
+    }
+    container.appendChild(s);
+  }
+})();
+
+// ===== Табы =====
+let currentCategory = 'all';
+
+function renderTabs(){
+  const tabsEl = $('tabs');
+  tabsEl.innerHTML = '';
+  const data = getUnlocked();
+
+  CATEGORIES.forEach(cat => {
+    const items = ACHIEVEMENTS.filter(cat.filter);
+    const unlocked = items.filter(a => data[a.id]).length;
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (cat.id === currentCategory ? ' active' : '');
+    tab.textContent = `${cat.name} (${unlocked}/${items.length})`;
+    tab.onclick = () => {
+      currentCategory = cat.id;
+      renderTabs();
+      renderAchievements();
+    };
+    tabsEl.appendChild(tab);
+  });
+}
+
+// ===== Рендер достижений =====
+function renderAchievements(){
+  const grid = $('achievementsGrid');
+  grid.innerHTML = '';
+  const data = getUnlocked();
+  const cat = CATEGORIES.find(c => c.id === currentCategory);
+  const items = ACHIEVEMENTS.filter(cat.filter);
+
+  items.forEach((a, i) => {
+    const isUnlocked = !!data[a.id];
+    const el = document.createElement('div');
+    el.className = 'ach' + (isUnlocked ? ' unlocked' : ' locked');
+    el.style.animation = `achIn .3s ease ${i*30}ms backwards`;
+
+    el.innerHTML = `
+      <div class="ach-emoji">${a.emoji}</div>
+      <div class="ach-info">
+        <div class="ach-title">${a.title}</div>
+        <div class="ach-desc">${a.desc}</div>
+        ${isUnlocked ? `<div class="ach-reward">+${a.stars} ⭐</div>` : '<div class="ach-reward" style="color:var(--muted);">🔒 Закрыто</div>'}
+      </div>
+    `;
+
+    if (isUnlocked){
+      el.onclick = () => showAchievementModal(a);
+    }
+    grid.appendChild(el);
+  });
+
+  updateSummary();
+}
+
+// ===== Сводка =====
+function updateSummary(){
+  const data = getUnlocked();
+  const total = ACHIEVEMENTS.length;
+  const unlocked = Object.keys(data).filter(id => ACHIEVEMENTS.find(a => a.id === id)).length;
+  let starsFromAch = 0;
+
+  ACHIEVEMENTS.forEach(a => {
+    if (data[a.id]) starsFromAch += a.stars;
+  });
+
+  $('unlockedCount').textContent = unlocked;
+  $('totalCount').textContent = total;
+  $('starsFromAch').textContent = starsFromAch;
+  $('progressFill').style.width = (unlocked / total * 100) + '%';
+}
+
+// ===== Модалка =====
+function showAchievementModal(a){
+  $('modalEmoji').textContent = a.emoji;
+  $('modalName').textContent = a.title;
+  $('modalDesc').textContent = a.desc;
+  $('modalReward').textContent = `+${a.stars} ⭐`;
+  $('modal').classList.add('open');
+}
+
+function closeModal(){
+  $('modal').classList.remove('open');
+}
+
+$('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ===== Toast =====
+function showToast(text, type = ''){
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = type; }, 2500);
+}
+
+// ===== Анимация =====
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes achIn {
+    from{opacity:0;transform:translateY(15px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+`;
+document.head.appendChild(style);
+
+// ===== Старт =====
+checkAchievements();
+renderTabs();
+renderAchievements();
+
+// Обновляем раз в 2 секунды (на случай если откроется новое)
+setInterval(checkAchievements, 2000);
+
+console.log('%c🏆 Seasons Park — achievements.html','font-size:18px;color:#38bdf8;font-weight:bold;');
+console.log('%cДостижений:', 'color:#4ade80;', ACHIEVEMENTS.length);
+</script>
+</body>
+</html>

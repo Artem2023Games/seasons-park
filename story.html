@@ -1,0 +1,683 @@
+<!--
+  Seasons Park — Night Shift
+  © 2026 Artem2023. Все права защищены.
+  Копирование и распространение без разрешения запрещены.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons Park — История парка</title>
+<script src="progress.js"></script>
+<style>
+  :root{
+    --bg:#050810;
+    --panel:#0a0f18;
+    --card:#0d1420;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --danger:#ef4444;
+    --success:#4ade80;
+    --gold:#fbbf24;
+    --star:#f472b6;
+    --text:#e2e8f0;
+    --muted:#64748b;
+    --border:#1e293b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(ellipse at 50% 20%, #1a1f3a 0%, #050810 70%);
+    color:var(--text);
+    user-select:none;-webkit-tap-highlight-color:transparent;
+    padding:30px 16px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  /* ===== Звёзды ===== */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{
+    position:absolute;width:2px;height:2px;
+    background:#fff;border-radius:50%;
+    animation:twinkle 3s infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.2;}
+    50%{opacity:1;}
+  }
+
+  /* ===== Заголовок ===== */
+  .header{
+    position:relative;z-index:2;
+    text-align:center;
+    margin-bottom:30px;
+    max-width:900px;
+    width:100%;
+  }
+  .back-btn{
+    position:absolute;top:0;left:0;
+    padding:10px 18px;
+    background:rgba(30,41,59,.7);
+    border:2px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    text-decoration:none;
+    font-size:.9rem;
+    font-weight:600;
+    transition:all .2s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .back-btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateX(-3px);
+  }
+  .header h1{
+    font-size:2.4rem;
+    font-weight:900;
+    letter-spacing:5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .header .subtitle{
+    color:var(--muted);
+    font-size:.9rem;
+    letter-spacing:4px;
+    text-transform:uppercase;
+  }
+
+  /* ===== Прогресс ===== */
+  .progress-bar{
+    position:relative;z-index:2;
+    max-width:900px;
+    width:100%;
+    margin-bottom:30px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .progress-text{
+    color:var(--muted);
+    font-size:.85rem;
+    white-space:nowrap;
+  }
+  .progress-text b{color:var(--accent);}
+  .progress-track{
+    flex:1;
+    height:10px;
+    background:#0a0f18;
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border-radius:5px;
+    transition:width .5s;
+    width:0%;
+  }
+
+  /* ===== Главы ===== */
+  .chapters{
+    position:relative;z-index:2;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:16px;
+    width:100%;
+    max-width:900px;
+  }
+
+  .chapter{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:20px;
+    cursor:pointer;
+    transition:all .3s;
+    position:relative;
+    overflow:hidden;
+  }
+  .chapter:hover:not(.locked){
+    transform:translateY(-4px);
+    border-color:var(--accent);
+    box-shadow:0 15px 40px rgba(56,189,248,.25);
+  }
+  .chapter.locked{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+  .chapter.locked::after{
+    content:'🔒';
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:3rem;
+    z-index:3;
+    filter:drop-shadow(0 0 10px rgba(0,0,0,.9));
+  }
+  .chapter.read{
+    border-color:var(--success);
+    background:linear-gradient(135deg, rgba(74,222,128,.06), rgba(13,20,32,.8));
+  }
+  .chapter.read::before{
+    content:'✅';
+    position:absolute;
+    top:12px;right:14px;
+    font-size:1.2rem;
+    z-index:3;
+  }
+
+  .chapter-num{
+    font-size:.7rem;
+    color:var(--muted);
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .chapter-emoji{
+    font-size:2.5rem;
+    margin-bottom:10px;
+    display:block;
+  }
+  .chapter-title{
+    font-size:1.1rem;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .chapter-desc{
+    font-size:.8rem;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  /* ===== Читалка ===== */
+  .reader{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.9);
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    backdrop-filter:blur(8px);
+  }
+  .reader.open{display:flex;}
+
+  .reader-content{
+    background:var(--card);
+    border:2px solid var(--accent);
+    border-radius:16px;
+    padding:30px;
+    max-width:600px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    animation:readerIn .3s ease;
+    box-shadow:0 0 60px rgba(56,189,248,.3);
+  }
+  @keyframes readerIn{
+    from{transform:scale(.9);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+  }
+  .reader-content::-webkit-scrollbar{width:8px;}
+  .reader-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+  .reader-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
+    padding-bottom:16px;
+    border-bottom:2px solid var(--border);
+  }
+  .reader-header-info .num{
+    font-size:.7rem;
+    color:var(--accent);
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .reader-header-info h2{
+    font-size:1.4rem;
+    font-weight:900;
+  }
+  .reader-close{
+    width:36px;height:36px;
+    background:#1e293b;
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    font-size:1.2rem;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .reader-close:hover{
+    background:var(--danger);
+    border-color:var(--danger);
+    color:#fff;
+  }
+
+  .reader-body{
+    color:var(--text);
+    font-size:1rem;
+    line-height:1.8;
+  }
+  .reader-body p{
+    margin-bottom:14px;
+  }
+  .reader-body .letter{
+    background:#000;
+    border-left:3px solid var(--gold);
+    padding:14px 18px;
+    border-radius:8px;
+    margin:16px 0;
+    font-style:italic;
+    color:var(--muted);
+    font-size:.95rem;
+    line-height:1.7;
+  }
+  .reader-body .letter-author{
+    text-align:right;
+    color:var(--gold);
+    font-style:normal;
+    margin-top:8px;
+    font-weight:700;
+  }
+  .reader-body .warning{
+    background:rgba(239,68,68,.1);
+    border-left:3px solid var(--danger);
+    padding:12px 16px;
+    border-radius:8px;
+    margin:16px 0;
+    color:#fca5a5;
+    font-size:.9rem;
+  }
+
+  .reader-footer{
+    margin-top:24px;
+    padding-top:16px;
+    border-top:2px solid var(--border);
+    display:flex;
+    gap:10px;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .reader-footer .hint{
+    color:var(--muted);
+    font-size:.8rem;
+    font-style:italic;
+  }
+  .reader-footer button{
+    padding:10px 20px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border:none;
+    border-radius:10px;
+    color:#0f172a;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .15s;
+  }
+  .reader-footer button:hover{transform:translateY(-2px);}
+
+  /* ===== Тосты ===== */
+  #toast{
+    position:fixed;top:20px;left:50%;
+    transform:translateX(-50%) translateY(-100px);
+    background:var(--accent);color:#0f172a;
+    padding:12px 24px;border-radius:10px;
+    font-weight:700;z-index:300;
+    transition:transform .3s;
+    box-shadow:0 10px 30px rgba(56,189,248,.4);
+    pointer-events:none;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  #toast.gold{background:var(--gold);}
+  #toast.success{background:var(--success);}
+  #toast.star{background:var(--star);color:#0f172a;}
+
+  /* ===== Мобильный ===== */
+  @media (max-width:600px){
+    .header h1{font-size:1.6rem;letter-spacing:3px;}
+    .back-btn{padding:8px 12px;font-size:.8rem;}
+    .chapters{grid-template-columns:1fr;}
+    .reader-content{padding:20px;}
+    .reader-header-info h2{font-size:1.1rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="header">
+  <a href="index.html" class="back-btn">← В меню</a>
+  <h1>ИСТОРИЯ ПАРКА</h1>
+  <div class="subtitle">Тайна Seasons Park</div>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-text">Прочитано: <b id="readCount">0</b> / <span id="totalCount">8</span></div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="chapters" id="chaptersGrid"></div>
+
+<!-- Читалка -->
+<div class="reader" id="reader">
+  <div class="reader-content">
+    <div class="reader-header">
+      <div class="reader-header-info">
+        <div class="num" id="readerNum">ГЛАВА 1</div>
+        <h2 id="readerTitle">Открытие</h2>
+      </div>
+      <button class="reader-close" onclick="closeReader()">×</button>
+    </div>
+    <div class="reader-body" id="readerBody"></div>
+    <div class="reader-footer">
+      <div class="hint" id="readerHint"></div>
+      <button onclick="closeReader()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// story.html — История парка
+// ============================================================
+
+const STORAGE_KEY = 'sp_story_progress';
+
+// ===== Главы =====
+const CHAPTERS = [
+  {
+    id: 'ch1',
+    num: 1,
+    emoji: '🎡',
+    title: 'Открытие парка',
+    desc: '1987 год. Первый сезон.',
+    unlockCondition: () => true, // всегда открыта
+    body: `
+      <p>Парк «Seasons Park» открылся в 1987 году. Идея была простая, но гениальная: <b>четыре сезона под одной крышей</b>. Летний пляж, осенний лес, зимний каток, весенний сад — всё в одном месте, круглый год.</p>
+      <p>Основатель парка, <b>Аркадий Временской</b>, был одержим идеей идеального отдыха. Он хотел, чтобы каждый посетитель нашёл свой сезон.</p>
+      <div class="letter">
+        «Я построю место, где лето никогда не кончается. Где зима — это праздник, а не холод. Где каждый день — начало чего-то нового».
+        <div class="letter-author">— Аркадий Временской, 1986</div>
+      </div>
+      <p>Первый сезон был триумфом. Тысячи посетителей, восторженные отзывы, очереди на карусель до самого закрытия.</p>
+    `
+  },
+  {
+    id: 'ch2',
+    num: 2,
+    emoji: '🎭',
+    title: 'Аниматроники',
+    desc: 'Хранители сезонов. 1988 год.',
+    unlockCondition: () => SP.get().night1,
+    body: `
+      <p>В 1988 году парк представил <b>главную фишку</b> — четырёх аниматроников-хранителей сезонов. Каждый из них был символом своего времени года и развлекал детей на главной сцене.</p>
+      <p><b>🦁 Солнечный Лев</b> — лето. Весёлый, громкий, любил обниматься.<br>
+      <b>🦉 Мудрая Сова</b> — осень. Тихая, наблюдательная, рассказывала истории.<br>
+      <b>🐺 Ледяной Волк</b> — зима. Молчаливый, но добрый. Дети его обожали.<br>
+      <b>🐰 Шаловливый Заяц</b> — весна. Игривый, всегда что-то прятал.</p>
+      <div class="letter">
+        «Они не просто роботы. Они — душа парка. Каждый сезон — это характер, это настроение, это жизнь».
+        <div class="letter-author">— из рекламного проспекта, 1988</div>
+      </div>
+      <p>Дети приходили в парк <b>ради них</b>. Аниматроники стали символом Seasons Park.</p>
+    `
+  },
+  {
+    id: 'ch3',
+    num: 3,
+    emoji: '⚠️',
+    title: 'Трагедия',
+    desc: 'Что случилось в 1995 году.',
+    unlockCondition: () => SP.get().night3,
+    body: `
+      <p>В 1995 году произошло <b>то, о чём не говорят в рекламе</b>. Во время ночной смены на главной сцене произошла авария. Один из механизмов заклинило.</p>
+      <div class="warning">
+        ⚠️ Официальная версия: техническая неисправность. Парк закрыли на ремонт.
+      </div>
+      <p>Но очевидцы утверждали другое. Говорили, что аниматроники <b>сами вышли из-под контроля</b>. Что ночью они двигались <b>без команды</b>. Что они <b>искали кого-то</b>.</p>
+      <p>Ночной сторож, 43-летний <b>Михаил Дроздов</b>, пропал без вести в ту ночь. Его так и не нашли.</p>
+      <div class="letter">
+        «Я слышал шаги. Они шли по коридору. Я закрыл дверь. Но они знали, что я там».
+        <div class="letter-author">— из последней записи в журнале сторожа</div>
+      </div>
+      <p>Парк закрыли. На 30 лет.</p>
+    `
+  },
+  {
+    id: 'ch4',
+    num: 4,
+    emoji: '📜',
+    title: 'Записки сторожа',
+    desc: 'Что он писал перед исчезновением.',
+    unlockCondition: () => SP.get().night4,
+    body: `
+      <p>В архивах парка сохранились <b>записки</b> ночного сторожа Михаила Дроздова. Последние 5 ночей перед исчезновением.</p>
+      <div class="letter">
+        <b>Ночь 1.</b> «Странно. Лев стоит на сцене, но я слышал шаги с другой стороны. Может, показалось».<br><br>
+        <b>Ночь 2.</b> «Сова двигалась. Я точно видел. Она была на дереве, а через минуту — на крыше. Как?»<br><br>
+        <b>Ночь 3.</b> «Волк заморозил дверь. Я не мог её закрыть. Он смотрел на меня. Смотрел».<br><br>
+        <b>Ночь 4.</b> «Заяц смеялся. Я не знаю, откуда шёл звук. Он был везде».<br><br>
+        <b>Ночь 5.</b> «Они все на сцене. Но я слышу, как они идут. Помогите».
+        <div class="letter-author">— Михаил Дроздов, 1995</div>
+      </div>
+      <p>На этом записи обрываются. Михаила так и не нашли.</p>
+    `
+  },
+  {
+    id: 'ch5',
+    num: 5,
+    emoji: '🗝️',
+    title: 'Возвращение',
+    desc: '2026 год. Парк открыли снова.',
+    unlockCondition: () => SP.get().night5,
+    body: `
+      <p>В 2026 году группа инвесторов решила <b>восстановить парк</b>. Они нашли старые чертежи, починили аниматроников, отремонтировали аттракционы.</p>
+      <p>И пригласили <b>нового ночного сторожа</b> — вас.</p>
+      <div class="letter">
+        «Парк снова открыт. Мы уверены, что все проблемы решены. Аниматроники проверены, механизмы исправны. Добро пожаловать в Seasons Park!»
+        <div class="letter-author">— из письма новому сотруднику, 2026</div>
+      </div>
+      <div class="warning">
+        ⚠️ Но что-то пошло не так. С первой же ночи аниматроники начали <b>двигаться сами</b>.
+      </div>
+    `
+  },
+  {
+    id: 'ch6',
+    num: 6,
+    emoji: '⭐',
+    title: 'Секретная ночь',
+    desc: 'Что парк скрывает на самом деле.',
+    unlockCondition: () => SP.get().night6,
+    body: `
+      <p>Вы прошли все 5 ночей. И на шестую ночь парк показал <b>свою истинную суть</b>.</p>
+      <p>Аниматроники — это не просто роботы. Это <b>души хранителей сезонов</b>. Каждый из них когда-то был человеком. Каждый охранял свой сезон.</p>
+      <div class="letter">
+        «Мы не хотим причинять вред. Мы просто хотим, чтобы парк жил. Чтобы сезоны сменялись. Чтобы дети смеялись. Останься с нами. Навсегда».
+        <div class="letter-author">— ?????, секретная ночь</div>
+      </div>
+      <p>Вы прошли секретную ночь. Но парк <b>не отпустил</b>. Он только начал показывать, на что способен.</p>
+    `
+  },
+  {
+    id: 'ch7',
+    num: 7,
+    emoji: '🎨',
+    title: 'Кастомная ночь',
+    desc: 'Вы контролируете сложность.',
+    unlockCondition: () => SP.isCustomUnlocked(),
+    body: `
+      <p>После прохождения секретной ночи вы получили доступ к <b>кастомной ночи</b>. Вы сами решаете, насколько агрессивными будут аниматроники.</p>
+      <p>Уровень агрессии от <b>0 до 20</b>. Сумма определяет сложность и награду.</p>
+      <div class="letter">
+        «Истинная свобода — это когда ты сам выбираешь, насколько тебе будет страшно».
+        <div class="letter-author">— из финальной записи парка</div>
+      </div>
+    `
+  },
+  {
+    id: 'ch8',
+    num: 8,
+    emoji: '🏆',
+    title: 'Легенда парка',
+    desc: 'Вы стали частью истории.',
+    unlockCondition: () => SP.getStars() >= 10,
+    body: `
+      <p>Вы собрали <b>10 звёзд</b>. Вы прошли все ночи. Вы стали легендой Seasons Park.</p>
+      <p>Но главная тайна ещё не раскрыта. Говорят, если пройти <b>20/20/20/20</b> в кастомной ночи, парк покажет <b>настоящую концовку</b>.</p>
+      <div class="letter">
+        «Ты был лучшим сторожем за всю историю парка. Может, останешься навсегда?»
+        <div class="letter-author">— неизвестный голос</div>
+      </div>
+    `
+  }
+];
+
+const $ = id => document.getElementById(id);
+
+// ===== Звёзды =====
+(function makeStars(){
+  const container = $('stars');
+  for (let i = 0; i < 100; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.opacity = Math.random() * 0.7 + 0.1;
+    if (Math.random() > 0.9){
+      s.style.width = '3px';
+      s.style.height = '3px';
+      s.style.boxShadow = '0 0 6px #fff';
+    }
+    container.appendChild(s);
+  }
+})();
+
+// ===== Прогресс чтения =====
+function getReadChapters(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  }catch{ return {}; }
+}
+
+function markAsRead(id){
+  const data = getReadChapters();
+  if (!data[id]){
+    data[id] = true;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateProgress();
+  }
+}
+
+function updateProgress(){
+  const read = getReadChapters();
+  const count = Object.keys(read).length;
+  $('readCount').textContent = count;
+  $('totalCount').textContent = CHAPTERS.length;
+  $('progressFill').style.width = (count / CHAPTERS.length * 100) + '%';
+}
+
+// ===== Рендер глав =====
+function renderChapters(){
+  const grid = $('chaptersGrid');
+  grid.innerHTML = '';
+  const read = getReadChapters();
+
+  CHAPTERS.forEach((ch, i) => {
+    const unlocked = ch.unlockCondition();
+    const isRead = read[ch.id];
+
+    const el = document.createElement('div');
+    el.className = 'chapter';
+    el.style.animation = `chapterIn .4s ease ${i*60}ms backwards`;
+    if (!unlocked) el.classList.add('locked');
+    if (isRead) el.classList.add('read');
+
+    el.innerHTML = `
+      <div class="chapter-num">Глава ${ch.num}</div>
+      <span class="chapter-emoji">${ch.emoji}</span>
+      <div class="chapter-title">${ch.title}</div>
+      <div class="chapter-desc">${unlocked ? ch.desc : '🔒 Заблокировано'}</div>
+    `;
+
+    if (unlocked){
+      el.onclick = () => openReader(ch);
+    }
+    grid.appendChild(el);
+  });
+}
+
+// ===== Читалка =====
+let currentChapter = null;
+
+function openReader(ch){
+  currentChapter = ch;
+  $('readerNum').textContent = `ГЛАВА ${ch.num}`;
+  $('readerTitle').textContent = ch.title;
+  $('readerBody').innerHTML = ch.body;
+  $('readerHint').textContent = 'Прочитано ✓';
+  $('reader').classList.add('open');
+  markAsRead(ch.id);
+}
+
+function closeReader(){
+  $('reader').classList.remove('open');
+  currentChapter = null;
+  renderChapters();
+}
+
+$('reader').addEventListener('click', e => {
+  if (e.target.id === 'reader') closeReader();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeReader();
+});
+
+// ===== Toast =====
+function showToast(text, type = ''){
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = type; }, 2000);
+}
+
+// ===== Анимация появления =====
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes chapterIn {
+    from{opacity:0;transform:translateY(20px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+`;
+document.head.appendChild(style);
+
+// ===== Старт =====
+renderChapters();
+updateProgress();
+
+console.log('%c📖 Seasons Park — story.html','font-size:18px;color:#38bdf8;font-weight:bold;');
+console.log('%cГлав:', 'color:#4ade80;', CHAPTERS.length);
+console.log('%cПрогресс:', 'color:#fbbf24;', SP.get());
+</script>
+</body>
+</html>

@@ -1,0 +1,1357 @@
+<!--
+  Seasons Park — Night Shift
+  © 2026 Artem2023. Все права защищены.
+  Копирование и распространение без разрешения запрещены.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons Park — Мультиплеер</title>
+<script src="progress.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#050810;
+    --panel:#0a0f18;
+    --card:#0d1420;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --danger:#ef4444;
+    --success:#4ade80;
+    --gold:#fbbf24;
+    --star:#f472b6;
+    --text:#e2e8f0;
+    --muted:#64748b;
+    --border:#1e293b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(ellipse at 50% 30%, #1a1f3a 0%, #050810 70%);
+    color:var(--text);
+    user-select:none;-webkit-tap-highlight-color:transparent;
+    padding:20px 16px;
+    min-height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+  }
+
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{
+    position:absolute;width:2px;height:2px;
+    background:#fff;border-radius:50%;
+    animation:twinkle 3s infinite;
+  }
+  @keyframes twinkle{0%,100%{opacity:.2;}50%{opacity:1;}}
+
+  .container{position:relative;z-index:2;max-width:540px;width:100%;}
+
+  .header{text-align:center;margin-bottom:30px;}
+  .header h1{
+    font-size:2rem;font-weight:900;letter-spacing:4px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:6px;
+  }
+  .header .sub{
+    color:var(--muted);font-size:.85rem;
+    letter-spacing:3px;text-transform:uppercase;
+  }
+
+  .screen{
+    display:none;background:var(--card);
+    border:2px solid var(--border);border-radius:16px;
+    padding:26px;animation:screenIn .3s ease;
+  }
+  .screen.show{display:block;}
+  @keyframes screenIn{
+    from{opacity:0;transform:translateY(15px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  .screen h2{
+    color:var(--accent);font-size:1.2rem;
+    margin-bottom:16px;text-align:center;letter-spacing:2px;
+  }
+
+  .input-group{margin-bottom:16px;}
+  .input-group label{
+    display:block;color:var(--muted);font-size:.75rem;
+    letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;
+  }
+  .input{
+    width:100%;padding:14px 16px;background:#000;
+    border:2px solid var(--border);border-radius:10px;
+    color:var(--text);font:inherit;font-size:1rem;
+    transition:border-color .2s;outline:none;
+  }
+  .input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 15px rgba(56,189,248,.3);
+  }
+  .input.code-input{
+    text-align:center;font-size:1.8rem;font-weight:900;
+    letter-spacing:12px;padding-left:22px;
+    text-transform:uppercase;font-family:monospace;
+  }
+
+  .btn{
+    display:flex;align-items:center;justify-content:center;
+    gap:10px;width:100%;padding:14px 20px;
+    border:2px solid var(--border);border-radius:12px;
+    background:var(--panel);color:var(--text);
+    font:inherit;font-size:1rem;font-weight:700;
+    cursor:pointer;transition:all .2s;margin-bottom:10px;
+  }
+  .btn:hover:not(:disabled){
+    transform:translateY(-2px);
+    border-color:var(--accent);color:var(--accent);
+  }
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn.primary{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border-color:transparent;color:#0f172a;
+    box-shadow:0 10px 25px rgba(56,189,248,.3);
+  }
+  .btn.primary:hover:not(:disabled){
+    box-shadow:0 15px 35px rgba(56,189,248,.5);
+    color:#0f172a;
+  }
+  .btn.gold{
+    background:linear-gradient(90deg,var(--gold),#f59e0b);
+    border-color:transparent;color:#0f172a;
+    box-shadow:0 10px 25px rgba(251,191,36,.3);
+  }
+  .btn.gold:hover:not(:disabled){
+    box-shadow:0 15px 35px rgba(251,191,36,.5);
+    color:#0f172a;
+  }
+  .btn.success{
+    background:linear-gradient(90deg,var(--success),#22c55e);
+    border-color:transparent;color:#0f172a;
+    box-shadow:0 10px 25px rgba(74,222,128,.3);
+  }
+  .btn.success:hover:not(:disabled){
+    box-shadow:0 15px 35px rgba(74,222,128,.5);
+    color:#0f172a;
+  }
+  .btn.success.active{
+    background:linear-gradient(90deg,#22c55e,var(--success));
+    animation:readyPulse 1.5s infinite;
+  }
+  @keyframes readyPulse{
+    0%,100%{box-shadow:0 10px 25px rgba(74,222,128,.3);}
+    50%{box-shadow:0 15px 40px rgba(74,222,128,.7);}
+  }
+  .btn.danger{
+    border-color:rgba(239,68,68,.4);color:#fca5a5;
+  }
+  .btn.danger:hover:not(:disabled){
+    border-color:var(--danger);color:var(--danger);
+    background:rgba(239,68,68,.1);
+  }
+  .btn.dissolve{
+    border-color:var(--danger);
+    color:#fff;
+    background:linear-gradient(90deg,var(--danger),#b91c1c);
+    box-shadow:0 10px 25px rgba(239,68,68,.3);
+  }
+  .btn.dissolve:hover:not(:disabled){
+    box-shadow:0 15px 35px rgba(239,68,68,.6);
+    background:linear-gradient(90deg,#b91c1c,var(--danger));
+    color:#fff;
+  }
+  .btn .icon{font-size:1.3rem;}
+
+  .players-list{
+    margin:16px 0;display:flex;flex-direction:column;gap:8px;
+  }
+  .player-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;background:var(--panel);
+    border:2px solid var(--border);border-radius:10px;
+    transition:all .2s;
+  }
+  .player-item.ready{
+    border-color:var(--success);
+    background:linear-gradient(90deg, rgba(74,222,128,.08), var(--panel));
+  }
+  .player-item.host{border-color:var(--gold);}
+  .player-avatar{
+    width:40px;height:40px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.2rem;font-weight:900;color:#0f172a;
+    flex-shrink:0;
+  }
+  .player-name{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .player-status{
+    font-size:.72rem;color:var(--muted);
+    letter-spacing:1px;font-weight:700;
+    white-space:nowrap;
+  }
+  .player-item.ready .player-status{color:var(--success);}
+  .player-badge{
+    padding:2px 8px;background:var(--gold);color:#0f172a;
+    border-radius:10px;font-size:.65rem;font-weight:900;
+    letter-spacing:1px;white-space:nowrap;
+  }
+
+  .kick-btn{
+    width:32px;height:32px;
+    border-radius:50%;
+    background:rgba(239,68,68,.15);
+    border:1px solid rgba(239,68,68,.5);
+    color:#fca5a5;
+    cursor:pointer;
+    font-size:1rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s;
+    flex-shrink:0;
+  }
+  .kick-btn:hover{
+    background:var(--danger);
+    color:#fff;
+    border-color:var(--danger);
+    transform:scale(1.1);
+  }
+
+  .room-code{
+    background:var(--panel);border:2px solid var(--accent);
+    border-radius:14px;padding:20px;text-align:center;
+    margin-bottom:20px;
+  }
+  .room-code-label{
+    font-size:.7rem;color:var(--muted);
+    letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;
+  }
+  .room-code-value{
+    font-size:3rem;font-weight:900;color:var(--accent);
+    letter-spacing:10px;font-family:monospace;
+    text-shadow:0 0 20px rgba(56,189,248,.5);margin-bottom:10px;
+  }
+  .copy-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 16px;background:rgba(56,189,248,.15);
+    border:1px solid var(--accent);border-radius:8px;
+    color:var(--accent);cursor:pointer;
+    font-size:.8rem;font-weight:700;transition:all .2s;
+  }
+  .copy-btn:hover{background:var(--accent);color:#0f172a;}
+
+  .visibility-selector{
+    display:flex;gap:8px;margin-bottom:16px;
+  }
+  .visibility-option{
+    flex:1;padding:12px 10px;background:var(--panel);
+    border:2px solid var(--border);border-radius:10px;
+    cursor:pointer;transition:all .2s;
+    text-align:center;font-size:.8rem;
+  }
+  .visibility-option:hover{
+    border-color:var(--accent);transform:translateY(-2px);
+  }
+  .visibility-option.active{
+    background:linear-gradient(135deg, rgba(56,189,248,.2), rgba(167,139,250,.2));
+    border-color:var(--accent);color:var(--accent);font-weight:700;
+  }
+  .visibility-option .v-emoji{
+    font-size:1.4rem;display:block;margin-bottom:4px;
+  }
+  .visibility-option .v-name{font-weight:700;font-size:.8rem;}
+  .visibility-option .v-desc{font-size:.65rem;color:var(--muted);margin-top:2px;}
+
+  .public-lobbies{
+    margin-top:10px;
+    max-height:300px;
+    overflow-y:auto;
+    display:flex;flex-direction:column;gap:8px;
+    padding-right:4px;
+  }
+  .public-lobbies::-webkit-scrollbar{width:6px;}
+  .public-lobbies::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  .lobby-card{
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:10px;
+    padding:12px 16px;
+    cursor:pointer;
+    transition:all .2s;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .lobby-card:hover{
+    border-color:var(--accent);
+    transform:translateX(4px);
+    background:rgba(56,189,248,.05);
+  }
+  .lobby-card .lobby-icon{
+    font-size:1.5rem;
+  }
+  .lobby-card .lobby-info{
+    flex:1;
+    min-width:0;
+  }
+  .lobby-card .lobby-name{
+    font-weight:700;
+    font-size:.95rem;
+    margin-bottom:2px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .lobby-card .lobby-meta{
+    font-size:.75rem;
+    color:var(--muted);
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .lobby-card .lobby-players{
+    font-weight:700;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+
+  .mode-selector{display:flex;gap:8px;margin-bottom:16px;}
+  .mode-option{
+    flex:1;padding:14px 10px;background:var(--panel);
+    border:2px solid var(--border);border-radius:12px;
+    cursor:pointer;transition:all .2s;
+    text-align:center;font-size:.85rem;
+  }
+  .mode-option:hover{
+    border-color:var(--accent);transform:translateY(-2px);
+  }
+  .mode-option.active{
+    background:linear-gradient(135deg, rgba(56,189,248,.2), rgba(167,139,250,.2));
+    border-color:var(--accent);color:var(--accent);font-weight:700;
+  }
+  .mode-option .mode-emoji{
+    font-size:1.6rem;display:block;margin-bottom:4px;
+  }
+  .mode-option .mode-name{font-weight:700;margin-bottom:2px;}
+  .mode-option .mode-desc{font-size:.7rem;color:var(--muted);}
+
+  #toast{
+    position:fixed;top:20px;left:50%;
+    transform:translateX(-50%) translateY(-100px);
+    background:var(--accent);color:#0f172a;
+    padding:12px 24px;border-radius:10px;
+    font-weight:700;z-index:300;transition:transform .3s;
+    box-shadow:0 10px 30px rgba(56,189,248,.4);
+    pointer-events:none;max-width:90vw;text-align:center;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  #toast.success{background:var(--success);}
+  #toast.danger{background:var(--danger);color:#fff;}
+  #toast.gold{background:var(--gold);}
+
+  .connection-status{
+    position:fixed;top:10px;right:10px;z-index:10;
+    padding:6px 12px;background:rgba(0,0,0,.7);
+    border:1px solid var(--border);border-radius:20px;
+    font-size:.7rem;color:var(--muted);
+    display:flex;align-items:center;gap:6px;
+  }
+  .connection-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--muted);transition:background .3s;
+  }
+  .connection-status.online .connection-dot{
+    background:var(--success);box-shadow:0 0 8px var(--success);
+  }
+  .connection-status.offline .connection-dot{
+    background:var(--danger);box-shadow:0 0 8px var(--danger);
+  }
+
+  .status-banner{
+    text-align:center;padding:14px;border-radius:10px;
+    background:rgba(30,41,59,.5);
+    border:1px solid var(--border);
+    color:var(--muted);font-size:.95rem;
+    margin-bottom:12px;letter-spacing:1px;
+    font-weight:700;transition:all .3s;
+  }
+  .status-banner.ready{
+    border-color:var(--success);color:var(--success);
+    background:rgba(74,222,128,.08);
+  }
+  .status-banner.waiting{
+    border-color:var(--gold);color:var(--gold);
+    background:rgba(251,191,36,.08);
+  }
+  .status-banner.countdown{
+    border-color:var(--star);color:var(--star);
+    background:rgba(244,114,182,.1);
+    animation:countdownPulse 1s infinite;
+  }
+  @keyframes countdownPulse{
+    0%,100%{box-shadow:0 0 10px rgba(244,114,182,.2);}
+    50%{box-shadow:0 0 25px rgba(244,114,182,.6);}
+  }
+  .status-banner .countdown-num{
+    font-size:1.5rem;font-weight:900;color:var(--star);
+    display:inline-block;min-width:30px;
+  }
+
+  .tabs{
+    display:flex;gap:6px;margin-bottom:16px;
+  }
+  .tab{
+    flex:1;padding:10px;background:var(--panel);
+    border:2px solid var(--border);border-radius:10px;
+    cursor:pointer;font-size:.85rem;font-weight:700;
+    color:var(--muted);transition:all .2s;
+    text-align:center;
+  }
+  .tab:hover{border-color:var(--accent);color:var(--accent);}
+  .tab.active{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0f172a;border-color:transparent;
+  }
+
+  .empty-msg{
+    text-align:center;padding:30px 20px;
+    color:var(--muted);font-size:.9rem;
+    font-style:italic;
+  }
+
+  @media (max-width:500px){
+    .header h1{font-size:1.5rem;letter-spacing:2px;}
+    .screen{padding:18px;}
+    .room-code-value{font-size:2rem;letter-spacing:8px;}
+    .mode-selector{flex-direction:column;}
+    .visibility-selector{flex-direction:column;}
+    .tabs{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="connection-status" id="connectionStatus">
+  <span class="connection-dot"></span>
+  <span id="connectionText">Подключение...</span>
+</div>
+
+<div class="container">
+
+  <!-- Экран 1: Имя -->
+  <div class="screen show" id="screenName">
+    <h2>👤 ВАШЕ ИМЯ</h2>
+    <div class="input-group">
+      <label>Как вас зовут?</label>
+      <input type="text" class="input" id="nameInput" placeholder="Artem" maxlength="20" autocomplete="off">
+    </div>
+    <button class="btn primary" id="nameBtn">
+      <span class="icon">→</span> Продолжить
+    </button>
+    <button class="btn" onclick="location.href='index.html'">
+      <span class="icon">←</span> В главное меню
+    </button>
+  </div>
+
+  <!-- Экран 2: Главное меню -->
+  <div class="screen" id="screenMain">
+    <h2>🌍 МУЛЬТИПЛЕЕР</h2>
+    <button class="btn primary" id="createBtn">
+      <span class="icon">🎮</span> Создать комнату
+    </button>
+    <button class="btn gold" id="browseBtn">
+      <span class="icon">🌐</span> Публичные комнаты
+    </button>
+    <button class="btn" id="joinBtn">
+      <span class="icon">🔑</span> Войти по коду
+    </button>
+    <button class="btn" id="changeNameBtn">
+      <span class="icon">✏️</span> Сменить имя
+    </button>
+    <button class="btn danger" onclick="location.href='index.html'">
+      <span class="icon">←</span> В главное меню
+    </button>
+  </div>
+
+  <!-- Экран 3: Создание -->
+  <div class="screen" id="screenCreate">
+    <h2>🎮 СОЗДАТЬ КОМНАТУ</h2>
+
+    <div class="input-group">
+      <label>Тип комнаты</label>
+      <div class="visibility-selector" id="visibilitySelector">
+        <div class="visibility-option active" data-visibility="public">
+          <span class="v-emoji">🌐</span>
+          <div class="v-name">Публичная</div>
+          <div class="v-desc">Видна всем, без кода</div>
+        </div>
+        <div class="visibility-option" data-visibility="private">
+          <span class="v-emoji">🔒</span>
+          <div class="v-name">Приватная</div>
+          <div class="v-desc">Вход по коду</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn primary" id="createConfirmBtn">
+      <span class="icon">✓</span> Создать
+    </button>
+    <button class="btn" id="createBackBtn">
+      <span class="icon">←</span> Назад
+    </button>
+  </div>
+
+  <!-- Экран 4: Публичные комнаты -->
+  <div class="screen" id="screenBrowse">
+    <h2>🌐 ПУБЛИЧНЫЕ КОМНАТЫ</h2>
+    <div class="tabs">
+      <div class="tab active" id="refreshBtn">🔄 Обновить</div>
+    </div>
+    <div class="public-lobbies" id="publicLobbies">
+      <div class="empty-msg">Загрузка...</div>
+    </div>
+    <button class="btn" id="browseBackBtn" style="margin-top:16px;">
+      <span class="icon">←</span> Назад
+    </button>
+  </div>
+
+  <!-- Экран 5: Ввод кода -->
+  <div class="screen" id="screenJoin">
+    <h2>🔑 ВВЕДИТЕ КОД</h2>
+    <div class="input-group">
+      <label>Код комнаты (4 символа)</label>
+      <input type="text" class="input code-input" id="codeInput" placeholder="ABCD" maxlength="4" autocomplete="off">
+    </div>
+    <button class="btn primary" id="joinConfirmBtn">
+      <span class="icon">→</span> Войти
+    </button>
+    <button class="btn" id="joinBackBtn">
+      <span class="icon">←</span> Назад
+    </button>
+  </div>
+
+  <!-- Экран 6: Лобби -->
+  <div class="screen" id="screenLobby">
+    <div class="room-code" id="roomCodeBlock" style="display:none;">
+      <div class="room-code-label" id="roomCodeLabel">Код комнаты</div>
+      <div class="room-code-value" id="lobbyCode">----</div>
+      <button class="copy-btn" id="copyCodeBtn">
+        📋 Скопировать
+      </button>
+    </div>
+
+    <div id="publicBadge" style="display:none;text-align:center;padding:10px;background:rgba(74,222,128,.1);border:1px solid var(--success);border-radius:10px;margin-bottom:16px;color:var(--success);font-size:.85rem;font-weight:700;">
+      🌐 Публичная комната
+    </div>
+
+    <div class="status-banner" id="statusBanner">
+      Готовы: 0/1
+    </div>
+
+    <div style="color:var(--muted);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;text-align:center;">
+      Игроки (<span id="playerCount">1</span>/4)
+    </div>
+
+    <div class="players-list" id="playersList"></div>
+
+    <div id="modeSection" style="display:none;">
+      <div style="color:var(--muted);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;">
+        Режим игры (только хост)
+      </div>
+
+      <div class="mode-selector" id="modeSelector">
+        <div class="mode-option active" data-mode="lms">
+          <span class="mode-emoji">🏆</span>
+          <div class="mode-name">Last Man Standing</div>
+          <div class="mode-desc">Каждый сам за себя</div>
+        </div>
+        <div class="mode-option" data-mode="coop">
+          <span class="mode-emoji">🤝</span>
+          <div class="mode-name">Кооператив</div>
+          <div class="mode-desc">Выживаем вместе</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn success" id="readyBtn">
+      <span class="icon">✅</span> Готов
+    </button>
+
+    <button class="btn danger" id="leaveBtn">
+      <span class="icon">🚪</span> Выйти
+    </button>
+
+    <button class="btn dissolve" id="dissolveBtn" style="display:none;">
+      <span class="icon">💥</span> Распустить комнату
+    </button>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// multiplayer.html — Лобби с публичными/приватными комнатами
+// ============================================================
+
+const SUPABASE_URL = 'https://zzipvumlgsqxbwqkmfdp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_0g5nyxbu-D6gN30e4Dxu2w_nL_n_Z8_';
+
+const MAX_PLAYERS = 4;
+const CODE_LENGTH = 4;
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const AUTO_START_SECONDS = 10;
+
+const $ = id => document.getElementById(id);
+
+const state = {
+  playerName: '',
+  playerId: null,
+  lobbyId: null,
+  isHost: false,
+  mode: 'lms',
+  visibility: 'public',
+  lobbyName: 'Комната',
+  players: [],
+  supabase: null,
+  channels: [],
+  autoStartInterval: null,
+  autoStartCountdown: 0,
+  publicLobbiesChannel: null,
+};
+
+// ===== Supabase =====
+function initSupabase(){
+  try{
+    state.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    setConnectionStatus('online', 'Подключено');
+    return true;
+  }catch(e){
+    console.error('Supabase error:', e);
+    setConnectionStatus('offline', 'Ошибка');
+    return false;
+  }
+}
+
+function setConnectionStatus(status, text){
+  const el = $('connectionStatus');
+  el.className = 'connection-status ' + status;
+  $('connectionText').textContent = text;
+}
+
+// ===== Код =====
+function generateCode(){
+  let code = '';
+  for (let i = 0; i < CODE_LENGTH; i++){
+    code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  }
+  return code;
+}
+
+async function generateUniqueCode(){
+  let attempts = 0;
+  while (attempts < 10){
+    const code = generateCode();
+    const { data, error } = await state.supabase
+      .from('lobbies')
+      .select('id')
+      .eq('id', code)
+      .maybeSingle();
+    
+    if (error) return code;
+    if (!data) return code;
+    attempts++;
+  }
+  return generateCode().substring(0, 3) + Math.floor(Math.random() * 10);
+}
+
+// ===== Toast =====
+function showToast(text, type = ''){
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = type; }, 2500);
+}
+
+// ===== Экраны =====
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  $(id).classList.add('show');
+}
+
+// ===== Звёзды =====
+(function makeStars(){
+  const container = $('stars');
+  for (let i = 0; i < 60; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.opacity = Math.random() * 0.7 + 0.1;
+    container.appendChild(s);
+  }
+})();
+
+// ===== Имя =====
+function loadName(){
+  const saved = localStorage.getItem('sp_mp_name');
+  if (saved){
+    state.playerName = saved;
+    $('nameInput').value = saved;
+    showScreen('screenMain');
+  } else {
+    showScreen('screenName');
+  }
+}
+
+function saveName(name){
+  state.playerName = name;
+  localStorage.setItem('sp_mp_name', name);
+}
+
+$('nameBtn').onclick = () => {
+  const name = $('nameInput').value.trim();
+  if (!name){ showToast('Введите имя', 'danger'); return; }
+  saveName(name);
+  showScreen('screenMain');
+};
+
+$('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('nameBtn').click();
+});
+
+$('changeNameBtn').onclick = () => {
+  $('nameInput').value = state.playerName;
+  showScreen('screenName');
+};
+
+// ===== Создание комнаты =====
+$('createBtn').onclick = () => {
+  showScreen('screenCreate');
+  $('visibilitySelector').querySelectorAll('.visibility-option').forEach(o => {
+    o.classList.toggle('active', o.dataset.visibility === 'public');
+  });
+  state.visibility = 'public';
+};
+
+$('createBackBtn').onclick = () => showScreen('screenMain');
+
+$('visibilitySelector').querySelectorAll('.visibility-option').forEach(opt => {
+  opt.onclick = () => {
+    $('visibilitySelector').querySelectorAll('.visibility-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    state.visibility = opt.dataset.visibility;
+  };
+});
+
+$('createConfirmBtn').onclick = async () => {
+  if (!state.supabase){ showToast('Нет подключения', 'danger'); return; }
+
+  let lobbyName = 'Комната ' + state.playerName;
+  if (state.visibility === 'public'){
+    const input = prompt('Название комнаты:', 'Комната ' + state.playerName);
+    if (input === null) return;
+    lobbyName = input.trim() || 'Комната';
+  }
+
+  $('createConfirmBtn').disabled = true;
+  $('createConfirmBtn').innerHTML = '<span class="icon">⏳</span> Создание...';
+
+  try{
+    const code = await generateUniqueCode();
+    const playerId = crypto.randomUUID();
+
+    const { error: lobbyError } = await state.supabase
+      .from('lobbies')
+      .insert({
+        id: code,
+        host_id: playerId,
+        mode: 'lms',
+        status: 'waiting',
+        visibility: state.visibility,
+        name: lobbyName
+      });
+
+    if (lobbyError) throw lobbyError;
+
+    const { error: playerError } = await state.supabase
+      .from('players')
+      .insert({ id: playerId, lobby_id: code, name: state.playerName, status: 'alive' });
+
+    if (playerError) throw playerError;
+
+    state.lobbyId = code;
+    state.playerId = playerId;
+    state.isHost = true;
+    state.mode = 'lms';
+    state.lobbyName = lobbyName;
+
+    showLobby();
+    subscribeToLobby();
+    showToast('Комната создана!', 'success');
+  }catch(e){
+    console.error('Ошибка:', e);
+    showToast('Не удалось создать: ' + e.message, 'danger');
+  }finally{
+    $('createConfirmBtn').disabled = false;
+    $('createConfirmBtn').innerHTML = '<span class="icon">✓</span> Создать';
+  }
+};
+
+// ===== Публичные комнаты =====
+$('browseBtn').onclick = () => {
+  showScreen('screenBrowse');
+  loadPublicLobbies();
+  subscribeToPublicLobbies();
+};
+
+$('browseBackBtn').onclick = () => {
+  unsubscribePublicLobbies();
+  showScreen('screenMain');
+};
+
+$('refreshBtn').onclick = () => {
+  loadPublicLobbies();
+};
+
+async function loadPublicLobbies(){
+  const container = $('publicLobbies');
+  try{
+    const { data: lobbies, error } = await state.supabase
+      .from('lobbies')
+      .select('*')
+      .eq('visibility', 'public')
+      .eq('status', 'waiting')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+
+    if (!lobbies || lobbies.length === 0){
+      container.innerHTML = '<div class="empty-msg">Нет публичных комнат<br>Создайте свою!</div>';
+      return;
+    }
+
+    const lobbiesWithPlayers = await Promise.all(lobbies.map(async lobby => {
+      const { data: players } = await state.supabase
+        .from('players')
+        .select('id, name')
+        .eq('lobby_id', lobby.id);
+      return { ...lobby, players: players || [] };
+    }));
+
+    container.innerHTML = lobbiesWithPlayers.map(lobby => {
+      const hostName = lobby.players[0]?.name || '???';
+      const count = lobby.players.length;
+      const modeName = lobby.mode === 'coop' ? '🤝 Кооп' : '🏆 LMS';
+      
+      return `
+        <div class="lobby-card" data-lobby="${lobby.id}">
+          <div class="lobby-icon">🎮</div>
+          <div class="lobby-info">
+            <div class="lobby-name">${lobby.name || 'Комната'}</div>
+            <div class="lobby-meta">
+              <span>👤 ${hostName}</span>
+              <span>${modeName}</span>
+            </div>
+          </div>
+          <div class="lobby-players">${count}/4</div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.lobby-card').forEach(card => {
+      card.onclick = () => joinLobbyById(card.dataset.lobby);
+    });
+  }catch(e){
+    console.error('Ошибка:', e);
+    container.innerHTML = '<div class="empty-msg">Ошибка загрузки</div>';
+  }
+}
+
+function subscribeToPublicLobbies(){
+  if (state.publicLobbiesChannel) return;
+  state.publicLobbiesChannel = state.supabase
+    .channel('public-lobbies')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'lobbies'
+    }, () => {
+      loadPublicLobbies();
+    })
+    .subscribe();
+}
+
+function unsubscribePublicLobbies(){
+  if (state.publicLobbiesChannel){
+    state.supabase.removeChannel(state.publicLobbiesChannel);
+    state.publicLobbiesChannel = null;
+  }
+}
+
+// ===== Вход в лобби по ID =====
+async function joinLobbyById(code){
+  if (!state.supabase) return;
+  try{
+    const { data: lobby, error } = await state.supabase
+      .from('lobbies')
+      .select('*')
+      .eq('id', code)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!lobby){ showToast('Комната не найдена', 'danger'); return; }
+    if (lobby.status !== 'waiting'){ showToast('Игра уже началась', 'danger'); return; }
+
+    const { data: existing } = await state.supabase
+      .from('players')
+      .select('id')
+      .eq('lobby_id', code);
+
+    if (existing && existing.length >= MAX_PLAYERS){
+      showToast('Комната полна', 'danger');
+      return;
+    }
+
+    const playerId = crypto.randomUUID();
+    const { error: joinError } = await state.supabase
+      .from('players')
+      .insert({ id: playerId, lobby_id: code, name: state.playerName, status: 'alive' });
+
+    if (joinError) throw joinError;
+
+    state.lobbyId = code;
+    state.playerId = playerId;
+    state.isHost = false;
+    state.mode = lobby.mode || 'lms';
+    state.visibility = lobby.visibility || 'public';
+    state.lobbyName = lobby.name || 'Комната';
+
+    unsubscribePublicLobbies();
+    showLobby();
+    subscribeToLobby();
+    showToast('Вы вошли!', 'success');
+  }catch(e){
+    console.error('Ошибка:', e);
+    showToast('Не удалось войти: ' + e.message, 'danger');
+  }
+}
+
+// ===== Вход по коду =====
+$('joinBtn').onclick = () => {
+  showScreen('screenJoin');
+  $('codeInput').value = '';
+  $('codeInput').focus();
+};
+
+$('joinBackBtn').onclick = () => showScreen('screenMain');
+
+$('codeInput').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+$('codeInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('joinConfirmBtn').click();
+});
+
+$('joinConfirmBtn').onclick = async () => {
+  const code = $('codeInput').value.trim().toUpperCase();
+  if (code.length !== CODE_LENGTH){
+    showToast(`Код из ${CODE_LENGTH} символов`, 'danger');
+    return;
+  }
+
+  if (!state.supabase){ showToast('Нет подключения', 'danger'); return; }
+
+  $('joinConfirmBtn').disabled = true;
+  $('joinConfirmBtn').innerHTML = '<span class="icon">⏳</span> Вход...';
+
+  try{
+    const { data: lobby, error } = await state.supabase
+      .from('lobbies')
+      .select('*')
+      .eq('id', code)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!lobby){ showToast('Комната не найдена', 'danger'); return; }
+    if (lobby.status !== 'waiting'){ showToast('Игра уже началась', 'danger'); return; }
+
+    const { data: existing } = await state.supabase
+      .from('players')
+      .select('id')
+      .eq('lobby_id', code);
+
+    if (existing && existing.length >= MAX_PLAYERS){
+      showToast('Комната полна', 'danger');
+      return;
+    }
+
+    const playerId = crypto.randomUUID();
+    const { error: joinError } = await state.supabase
+      .from('players')
+      .insert({ id: playerId, lobby_id: code, name: state.playerName, status: 'alive' });
+
+    if (joinError) throw joinError;
+
+    state.lobbyId = code;
+    state.playerId = playerId;
+    state.isHost = false;
+    state.mode = lobby.mode || 'lms';
+    state.visibility = lobby.visibility || 'public';
+    state.lobbyName = lobby.name || 'Комната';
+
+    showLobby();
+    subscribeToLobby();
+    showToast('Вы вошли!', 'success');
+  }catch(e){
+    console.error('Ошибка:', e);
+    showToast('Не удалось войти: ' + e.message, 'danger');
+  }finally{
+    $('joinConfirmBtn').disabled = false;
+    $('joinConfirmBtn').innerHTML = '<span class="icon">→</span> Войти';
+  }
+};
+
+// ===== Показ лобби =====
+function showLobby(){
+  const roomCodeBlock = $('roomCodeBlock');
+  const publicBadge = $('publicBadge');
+  
+  if (state.isHost && state.visibility === 'private'){
+    $('lobbyCode').textContent = state.lobbyId;
+    roomCodeBlock.style.display = 'block';
+    publicBadge.style.display = 'none';
+  } else if (state.visibility === 'public'){
+    roomCodeBlock.style.display = 'none';
+    publicBadge.style.display = 'block';
+  } else {
+    roomCodeBlock.style.display = 'none';
+    publicBadge.style.display = 'none';
+  }
+
+  showScreen('screenLobby');
+
+  if (state.isHost){
+    $('modeSection').style.display = 'block';
+    $('dissolveBtn').style.display = 'flex';
+  } else {
+    $('modeSection').style.display = 'none';
+    $('dissolveBtn').style.display = 'none';
+  }
+  
+  updatePlayersList();
+}
+
+// ===== Подписка =====
+function subscribeToLobby(){
+  state.channels.forEach(ch => state.supabase.removeChannel(ch));
+  state.channels = [];
+
+  const playersChannel = state.supabase
+    .channel('players-' + state.lobbyId)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'players',
+      filter: `lobby_id=eq.${state.lobbyId}`
+    }, payload => {
+      if (payload.eventType === 'DELETE' && payload.old.id === state.playerId){
+        showToast('💥 Вас выгнали из комнаты', 'danger');
+        setTimeout(() => location.href = 'multiplayer.html', 2000);
+        return;
+      }
+      loadPlayers();
+    })
+    .subscribe();
+
+  const lobbyChannel = state.supabase
+    .channel('lobby-' + state.lobbyId)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'lobbies',
+      filter: `id=eq.${state.lobbyId}`
+    }, payload => {
+      if (payload.eventType === 'UPDATE' && payload.new.status === 'started'){
+        location.href = `game-mp.html?lobby=${state.lobbyId}&player=${state.playerId}`;
+        return;
+      }
+      if (payload.eventType === 'DELETE'){
+        showToast('💥 Хост распустил комнату', 'danger');
+        setTimeout(() => location.href = 'multiplayer.html', 2000);
+        return;
+      }
+    })
+    .subscribe();
+
+  state.channels.push(playersChannel, lobbyChannel);
+  loadPlayers();
+}
+
+// ===== Загрузка игроков =====
+async function loadPlayers(){
+  if (!state.lobbyId) return;
+  try{
+    const { data, error } = await state.supabase
+      .from('players')
+      .select('*')
+      .eq('lobby_id', state.lobbyId)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    state.players = data || [];
+    updatePlayersList();
+  }catch(e){
+    console.error('Ошибка:', e);
+  }
+}
+
+// ===== Обновление списка =====
+function updatePlayersList(){
+  const players = state.players;
+  $('playerCount').textContent = players.length;
+
+  const me = players.find(p => p.id === state.playerId);
+  const iAmReady = me && me.status === 'ready';
+  const readyCount = players.filter(p => p.status === 'ready').length;
+  const allReady = players.length >= 2 && readyCount === players.length;
+
+  const html = players.map(p => {
+    const isHost = p.id === players[0]?.id;
+    const isMe = p.id === state.playerId;
+    const initial = p.name.charAt(0).toUpperCase();
+    const ready = p.status === 'ready';
+    const canKick = state.isHost && !isMe && !isHost;
+    
+    return `
+      <div class="player-item ${isHost ? 'host' : ''} ${ready ? 'ready' : ''}">
+        <div class="player-avatar">${initial}</div>
+        <div class="player-name">${p.name}${isMe ? ' (вы)' : ''}</div>
+        ${isHost ? '<span class="player-badge">ХОСТ</span>' : ''}
+        <div class="player-status">${ready ? '✅' : '⏳'}</div>
+        ${canKick ? `<button class="kick-btn" data-kick="${p.id}" title="Выгнать">🚫</button>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  $('playersList').innerHTML = html;
+
+  document.querySelectorAll('.kick-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      kickPlayer(btn.dataset.kick);
+    };
+  });
+
+  const readyBtn = $('readyBtn');
+  if (iAmReady){
+    readyBtn.innerHTML = '<span class="icon">❌</span> Отменить';
+    readyBtn.classList.add('active');
+  } else {
+    readyBtn.innerHTML = '<span class="icon">✅</span> Готов';
+    readyBtn.classList.remove('active');
+  }
+
+  const banner = $('statusBanner');
+  
+  if (state.autoStartInterval && state.autoStartCountdown > 0){
+    banner.className = 'status-banner countdown';
+    banner.innerHTML = `🎉 Все готовы! Старт через <span class="countdown-num">${state.autoStartCountdown}</span>`;
+  }
+  else if (players.length < 2){
+    banner.className = 'status-banner';
+    banner.textContent = `Готовы: ${readyCount}/${players.length} · Нужно минимум 2`;
+  }
+  else if (allReady){
+    banner.className = 'status-banner ready';
+    banner.textContent = `🎉 Все готовы!`;
+    startAutoStart();
+  }
+  else {
+    banner.className = 'status-banner waiting';
+    banner.textContent = `Готовы: ${readyCount}/${players.length}`;
+    stopAutoStart();
+  }
+}
+
+// ===== Автостарт =====
+function startAutoStart(){
+  if (state.autoStartInterval) return;
+  state.autoStartCountdown = AUTO_START_SECONDS;
+  state.autoStartInterval = setInterval(() => {
+    state.autoStartCountdown--;
+    if (state.autoStartCountdown <= 0){
+      stopAutoStart();
+      startGame();
+      return;
+    }
+    const banner = $('statusBanner');
+    if (banner){
+      banner.className = 'status-banner countdown';
+      banner.innerHTML = `🎉 Все готовы! Старт через <span class="countdown-num">${state.autoStartCountdown}</span>`;
+    }
+  }, 1000);
+}
+
+function stopAutoStart(){
+  if (state.autoStartInterval){
+    clearInterval(state.autoStartInterval);
+    state.autoStartInterval = null;
+  }
+  state.autoStartCountdown = 0;
+}
+
+// ===== Старт =====
+async function startGame(){
+  try{
+    await state.supabase
+      .from('lobbies')
+      .update({ status: 'started' })
+      .eq('id', state.lobbyId);
+    location.href = `game-mp.html?lobby=${state.lobbyId}&player=${state.playerId}`;
+  }catch(e){
+    console.error('Ошибка:', e);
+  }
+}
+
+// ===== Готовность =====
+async function toggleReady(){
+  if (!state.playerId) return;
+  const me = state.players.find(p => p.id === state.playerId);
+  if (!me) return;
+  const newStatus = me.status === 'ready' ? 'alive' : 'ready';
+  try{
+    await state.supabase
+      .from('players')
+      .update({ status: newStatus })
+      .eq('id', state.playerId);
+  }catch(e){
+    console.error(e);
+  }
+}
+
+// ===== Кик =====
+async function kickPlayer(playerId){
+  if (!state.isHost) return;
+  const player = state.players.find(p => p.id === playerId);
+  if (!player) return;
+  if (!confirm(`Выгнать ${player.name}?`)) return;
+  
+  try{
+    await state.supabase
+      .from('players')
+      .delete()
+      .eq('id', playerId);
+    showToast(`${player.name} выгнан`, 'gold');
+  }catch(e){
+    console.error(e);
+    showToast('Ошибка кика', 'danger');
+  }
+}
+
+// ===== Режим =====
+$('modeSelector').querySelectorAll('.mode-option').forEach(opt => {
+  opt.onclick = async () => {
+    if (!state.isHost) return;
+    const mode = opt.dataset.mode;
+    state.mode = mode;
+    $('modeSelector').querySelectorAll('.mode-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    await state.supabase.from('lobbies').update({ mode }).eq('id', state.lobbyId);
+  };
+});
+
+// ===== Копировать код =====
+$('copyCodeBtn').onclick = () => {
+  const code = state.lobbyId;
+  if (navigator.clipboard){
+    navigator.clipboard.writeText(code).then(() => showToast('Код скопирован!', 'success'));
+  }
+};
+
+// ===== Выход =====
+async function leaveLobby(){
+  if (!state.lobbyId || !state.playerId){
+    location.href = 'index.html';
+    return;
+  }
+
+  try{
+    await state.supabase.from('players').delete().eq('id', state.playerId);
+
+    if (state.isHost){
+      const { data: remaining } = await state.supabase
+        .from('players')
+        .select('id')
+        .eq('lobby_id', state.lobbyId)
+        .order('created_at', { ascending: true })
+        .limit(1);
+
+      if (remaining && remaining.length > 0){
+        await state.supabase.from('lobbies').update({ host_id: remaining[0].id }).eq('id', state.lobbyId);
+      } else {
+        await state.supabase.from('lobbies').delete().eq('id', state.lobbyId);
+      }
+    }
+  }catch(e){ console.error(e); }
+
+  location.href = 'multiplayer.html';
+}
+
+$('leaveBtn').onclick = leaveLobby;
+
+// ===== Распустить =====
+async function dissolveLobby(){
+  if (!state.isHost) return;
+  if (!confirm('💥 Распустить комнату?\n\nВсе игроки будут выкинуты. Продолжить?')) return;
+  
+  try{
+    await state.supabase.from('lobbies').delete().eq('id', state.lobbyId);
+    location.href = 'multiplayer.html';
+  }catch(e){
+    console.error(e);
+    showToast('Ошибка: ' + e.message, 'danger');
+  }
+}
+
+$('dissolveBtn').onclick = dissolveLobby;
+
+// ===== Обработчики =====
+setTimeout(() => {
+  const rb = $('readyBtn');
+  if (rb) rb.onclick = toggleReady;
+}, 100);
+
+// ===== URL параметры =====
+const params = new URLSearchParams(location.search);
+if (params.has('lobby')){
+  const code = params.get('lobby').toUpperCase();
+  if (code.length === CODE_LENGTH){
+    $('codeInput').value = code;
+    showScreen('screenJoin');
+    setTimeout(() => {
+      if (state.playerName) $('joinConfirmBtn').click();
+    }, 500);
+  }
+}
+
+// ===== Старт =====
+initSupabase();
+loadName();
+
+console.log('%c🌍 Seasons Park — multiplayer.html','font-size:18px;color:#38bdf8;font-weight:bold;');
+console.log('%cSupabase:', SUPABASE_URL);
+</script>
+</body>
+</html>

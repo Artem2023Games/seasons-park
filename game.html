@@ -1,0 +1,1767 @@
+<!--
+  Seasons Park — Night Shift
+  © 2026 Artem2023. Все права защищены.
+  Копирование и распространение без разрешения запрещены.
+-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons Park — Night Shift</title>
+<script src="progress.js"></script>
+<script src="characters.js"></script>
+<style>
+  :root{
+    --bg:#050810;
+    --office:#0d1420;
+    --wall:#1a2332;
+    --accent:#38bdf8;
+    --accent2:#a78bfa;
+    --danger:#ef4444;
+    --success:#4ade80;
+    --gold:#fbbf24;
+    --star:#f472b6;
+    --text:#e2e8f0;
+    --muted:#64748b;
+    --border:#1e293b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);color:var(--text);
+    user-select:none;-webkit-tap-highlight-color:transparent;
+  }
+
+  /* ===== ОФИС ===== */
+  #office{
+    position:relative;
+    width:100vw;height:100vh;
+    background:radial-gradient(ellipse at 50% 100%, #0d1420 0%, #050810 70%);
+    overflow:hidden;
+    transition:opacity .3s;
+  }
+  #office.hidden{opacity:0;pointer-events:none;}
+
+  body[data-season="summer"] #office{background:radial-gradient(ellipse at 50% 100%, #1e1b0f 0%, #050810 70%);}
+  body[data-season="autumn"] #office{background:radial-gradient(ellipse at 50% 100%, #1f1205 0%, #050810 70%);}
+  body[data-season="winter"] #office{background:radial-gradient(ellipse at 50% 100%, #0a1a2e 0%, #050810 70%);}
+  body[data-season="spring"] #office{background:radial-gradient(ellipse at 50% 100%, #1f0e1a 0%, #050810 70%);}
+  body[data-season="broken"] #office{background:radial-gradient(ellipse at 50% 100%, #2a0a0a 0%, #050810 70%);}
+  body[data-season="secret"] #office{background:radial-gradient(ellipse at 50% 100%, #1a0a2e 0%, #050810 70%);}
+
+  #office::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.85) 100%);
+    z-index:5;
+  }
+
+  .wall{position:absolute;background:linear-gradient(180deg, var(--wall), var(--office));z-index:1;}
+  .wall-left{left:0;top:0;width:25%;height:100%;border-right:2px solid #000;}
+  .wall-right{right:0;top:0;width:25%;height:100%;border-left:2px solid #000;}
+  .wall-back{left:25%;top:0;width:50%;height:65%;background:linear-gradient(180deg,#1a2332,#0d1420);border-bottom:2px solid #000;}
+
+  .poster{position:absolute;top:15%;left:10%;width:120px;height:150px;background:linear-gradient(135deg,#1e293b,#0f172a);border:3px solid #334155;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:2rem;transform:rotate(-3deg);box-shadow:0 5px 20px rgba(0,0,0,.6);opacity:.7;}
+  .poster-text{position:absolute;bottom:8px;width:100%;text-align:center;font-size:.6rem;color:#475569;letter-spacing:2px;}
+  .poster2{position:absolute;top:20%;right:10%;width:120px;height:150px;background:linear-gradient(135deg,#1e293b,#0f172a);border:3px solid #334155;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:2rem;transform:rotate(3deg);box-shadow:0 5px 20px rgba(0,0,0,.6);opacity:.7;}
+
+  #clock{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:3rem;font-weight:700;color:var(--accent);text-shadow:0 0 20px rgba(56,189,248,.5);z-index:6;font-variant-numeric:tabular-nums;letter-spacing:2px;}
+  #night-label{position:absolute;top:80px;left:50%;transform:translateX(-50%);font-size:.9rem;color:var(--muted);letter-spacing:3px;z-index:6;text-transform:uppercase;text-align:center;}
+
+  #energy-wrap{position:absolute;bottom:20px;left:20px;z-index:6;width:220px;display:flex;flex-direction:column;gap:6px;}
+  #energy-label{font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+  #energy-bar{width:100%;height:16px;background:#0a0f18;border:2px solid var(--border);border-radius:8px;overflow:hidden;}
+  #energy-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--success),#22c55e);transition:width .15s, background .3s;border-radius:6px;}
+  #energy-fill.warn{background:linear-gradient(90deg,var(--gold),#f59e0b);}
+  #energy-fill.critical{background:linear-gradient(90deg,var(--danger),#dc2626);animation:flash .5s infinite;}
+  @keyframes flash{50%{opacity:.5;}}
+  #energy-text{font-size:.85rem;color:var(--text);font-variant-numeric:tabular-nums;text-align:right;}
+
+  #usage{position:absolute;bottom:110px;left:20px;z-index:6;display:flex;gap:4px;}
+  .usage-bar{width:24px;height:10px;background:#0a0f18;border:1px solid var(--border);border-radius:3px;transition:all .2s;}
+  .usage-bar.on-1{background:var(--success);border-color:var(--success);box-shadow:0 0 8px var(--success);}
+  .usage-bar.on-2{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px var(--gold);}
+  .usage-bar.on-3{background:#f97316;border-color:#f97316;box-shadow:0 0 8px #f97316;}
+  .usage-bar.on-4{background:var(--danger);border-color:var(--danger);box-shadow:0 0 8px var(--danger);animation:flash .5s infinite;}
+
+  /* ДВЕРИ */
+  .door{position:absolute;top:0;height:100%;width:25%;background:linear-gradient(180deg,#000,#0a0f18);border:3px solid #1e293b;transition:transform .3s ease;z-index:3;}
+  .door.left{left:0;transform:translateX(-100%);}
+  .door.right{right:0;transform:translateX(100%);}
+  .door.closed{transform:translateX(0);}
+  .door.frozen{border-color:#38bdf8;box-shadow:inset 0 0 30px rgba(56,189,248,.4);}
+  .door::before{content:'';position:absolute;inset:15%;border:2px solid #0f172a;border-radius:4px;}
+  .door::after{content:'';position:absolute;bottom:40%;right:20px;width:8px;height:30px;background:#334155;border-radius:2px;}
+  .door.right::after{right:auto;left:20px;}
+
+  .door-glow{position:absolute;top:0;height:100%;width:25%;background:radial-gradient(circle at center, rgba(251,191,36,.15), transparent 70%);z-index:2;pointer-events:none;opacity:0;transition:opacity .3s;}
+  .door-glow.left{left:0;}
+  .door-glow.right{right:0;}
+  .door-glow.on{opacity:1;}
+
+  .door-char{
+    position:absolute;
+    top:30%;
+    font-size:5rem;
+    z-index:4;
+    pointer-events:none;
+    filter:drop-shadow(0 0 20px currentColor);
+    animation:doorCharPulse 1s infinite;
+  }
+  .door-char.left{left:8%;}
+  .door-char.right{right:8%;}
+  @keyframes doorCharPulse{
+    0%,100%{transform:scale(1);opacity:.7;}
+    50%{transform:scale(1.1);opacity:1;}
+  }
+
+  .ceiling-char{
+    position:absolute;
+    top:5%;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:4rem;
+    z-index:4;
+    pointer-events:none;
+    filter:drop-shadow(0 0 20px currentColor);
+    animation:ceilingFloat 2s ease-in-out infinite;
+    opacity:0;
+    transition:opacity .3s;
+  }
+  .ceiling-char.on{opacity:1;}
+  @keyframes ceilingFloat{
+    0%,100%{transform:translateX(-50%) translateY(0);}
+    50%{transform:translateX(-50%) translateY(10px);}
+  }
+
+  .door-btn,.door-light-btn{position:absolute;border-radius:50%;border:3px solid var(--border);background:#0a0f18;color:var(--muted);cursor:pointer;transition:all .2s;z-index:4;display:flex;align-items:center;justify-content:center;}
+  .door-btn{width:60px;height:60px;font-size:1.5rem;bottom:40px;}
+  .door-light-btn{width:50px;height:50px;font-size:1.3rem;bottom:110px;}
+  .door-btn:hover,.door-light-btn:hover{transform:scale(1.1);}
+  .door-btn.active{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 0 20px var(--danger);}
+  .door-btn.frozen{background:#38bdf8;border-color:#38bdf8;color:#0f172a;}
+  .door-light-btn.on{background:var(--gold);border-color:var(--gold);color:#000;box-shadow:0 0 30px var(--gold);}
+  .door-btn.left-btn{left:calc(25% - 80px);}
+  .door-btn.right-btn{right:calc(25% - 80px);}
+  .door-light-btn.left-btn{left:calc(25% - 80px);}
+  .door-light-btn.right-btn{right:calc(25% - 80px);}
+
+  #bottomPanel{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:6;display:flex;gap:10px;}
+  .panel-btn{padding:12px 20px;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#0f172a;font-weight:700;font-size:.9rem;cursor:pointer;transition:transform .15s;box-shadow:0 5px 20px rgba(56,189,248,.3);display:flex;align-items:center;gap:8px;}
+  .panel-btn:hover{transform:translateY(-2px);}
+  .panel-btn.secondary{background:#1e293b;color:var(--text);border:2px solid var(--border);box-shadow:none;}
+  .panel-btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .panel-btn .key-hint{font-size:.7rem;opacity:.6;font-family:monospace;}
+
+  #console{position:absolute;bottom:20px;right:20px;z-index:6;font-size:.7rem;color:var(--muted);letter-spacing:1px;text-align:right;line-height:1.6;}
+  #console .key{display:inline-block;padding:1px 6px;margin:0 2px;background:#0a0f18;border:1px solid var(--border);border-radius:4px;color:var(--accent);font-family:monospace;}
+
+  /* КАМЕРЫ */
+  #camerasOverlay{
+    position:fixed;inset:0;
+    background:#000;
+    z-index:50;
+    display:none;
+    grid-template-columns:220px 1fr;
+  }
+  #camerasOverlay.show{display:grid;}
+
+  #camList{
+    background:#0a0f18;
+    border-right:2px solid var(--border);
+    overflow-y:auto;
+    padding:10px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  #camList::-webkit-scrollbar{width:6px;}
+  #camList::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  .cam-title{
+    color:var(--accent);
+    font-size:.7rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:8px;
+    padding:0 6px;
+    font-weight:700;
+  }
+  .cam-season{
+    color:var(--muted);
+    font-size:.7rem;
+    letter-spacing:2px;
+    padding:0 6px;margin-bottom:10px;
+    text-align:center;
+  }
+
+  .cam-item{
+    padding:10px 12px;
+    background:#0d1420;
+    border:1px solid var(--border);
+    border-radius:8px;
+    cursor:pointer;
+    transition:all .2s;
+    font-size:.85rem;
+    display:flex;align-items:center;gap:10px;
+    position:relative;
+  }
+  .cam-item:hover{border-color:var(--accent);transform:translateX(3px);}
+  .cam-item.active{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0f172a;font-weight:700;border-color:transparent;
+  }
+  .cam-item .num{font-family:monospace;font-size:.75rem;opacity:.7;min-width:20px;}
+  .cam-item .emoji{font-size:1.2rem;}
+  .cam-item .name{flex:1;}
+  .cam-item .status{
+    font-size:.7rem;color:var(--success);opacity:.7;
+    transition:all .2s;
+  }
+  .cam-item.active .status{color:#0f172a;opacity:.9;}
+  .cam-item.has-char .status{
+    color:var(--danger);
+    animation:rec 1s infinite;
+  }
+
+  #camView{position:relative;overflow:hidden;background:#000;}
+  #camView::before{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:10;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.15) 0px, rgba(0,0,0,.15) 1px, transparent 1px, transparent 3px);
+  }
+  #camView::after{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:11;
+    background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.75) 100%);
+  }
+  #camNoise{
+    position:absolute;inset:0;pointer-events:none;z-index:9;
+    opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:noiseMove .1s infinite;
+  }
+  @keyframes noiseMove{0%{transform:translate(0,0);}100%{transform:translate(-5%,-5%);}}
+
+  #camLabel{
+    position:absolute;top:20px;left:20px;z-index:12;
+    background:rgba(0,0,0,.75);border:1px solid var(--accent);
+    border-radius:8px;padding:8px 16px;
+    font-size:.95rem;font-weight:700;color:var(--accent);
+    letter-spacing:2px;text-transform:uppercase;
+    display:flex;align-items:center;gap:10px;
+  }
+  #camLabel .rec{
+    display:inline-block;width:10px;height:10px;
+    background:var(--danger);border-radius:50%;
+    animation:rec 1.5s infinite;
+  }
+  @keyframes rec{0%,100%{opacity:1;box-shadow:0 0 8px var(--danger);}50%{opacity:.2;box-shadow:none;}}
+
+  #camClock{
+    position:absolute;top:20px;right:20px;z-index:12;
+    background:rgba(0,0,0,.75);border:1px solid var(--border);
+    border-radius:8px;padding:8px 16px;
+    font-size:1.1rem;font-weight:700;color:var(--accent);
+    letter-spacing:2px;font-variant-numeric:tabular-nums;
+  }
+  #camClock .night-info{
+    display:block;font-size:.65rem;color:var(--muted);
+    letter-spacing:1px;text-align:center;
+    margin-top:2px;font-weight:400;text-transform:uppercase;
+  }
+
+  #camControls{
+    position:absolute;bottom:20px;left:20px;right:20px;
+    z-index:12;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  #backBtn{
+    padding:12px 24px;background:var(--danger);border:none;border-radius:10px;
+    color:#fff;font-weight:700;font-size:.95rem;cursor:pointer;
+    transition:transform .15s;
+    display:flex;align-items:center;gap:8px;
+  }
+  #backBtn:hover{transform:translateY(-2px);}
+
+  .nav-buttons{display:flex;gap:8px;}
+  .nav-btn{
+    width:50px;height:50px;
+    background:rgba(30,41,59,.9);border:2px solid var(--border);
+    border-radius:10px;color:var(--text);font-size:1.2rem;
+    cursor:pointer;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.15);}
+
+  #camScene{position:absolute;inset:0;z-index:1;}
+
+  #flashlightBtn{
+    position:absolute;bottom:80px;right:20px;z-index:12;
+    width:56px;height:56px;
+    background:rgba(0,0,0,.85);
+    border:2px solid var(--border);border-radius:12px;
+    color:var(--muted);font-size:1.5rem;cursor:pointer;
+    transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #flashlightBtn:hover{border-color:var(--accent);color:var(--accent);}
+  #flashlightBtn.on{
+    background:var(--gold);border-color:var(--gold);
+    color:#0f172a;box-shadow:0 0 25px rgba(251,191,36,.5);
+  }
+
+  #flashlightDarkness{
+    position:absolute;inset:0;z-index:8;pointer-events:none;
+    background:radial-gradient(circle var(--flashlight-size, 280px) at var(--flashlight-x, 50%) var(--flashlight-y, 50%), transparent 0%, rgba(0,0,0,.2) 40%, rgba(0,0,0,.75) 70%, rgba(0,0,0,.95) 100%);
+    opacity:0;transition:opacity .2s;
+  }
+  #flashlightDarkness.on{opacity:1;}
+
+  .cam-char{
+    position:absolute;
+    font-size:7rem;
+    z-index:5;
+    filter:drop-shadow(0 0 25px currentColor);
+    animation:charAppear .5s ease;
+    pointer-events:none;
+    top:50%;left:50%;
+  }
+  @keyframes charAppear{
+    from{opacity:0;transform:scale(.8) translate(-50%,-50%);}
+    to{opacity:1;transform:scale(1) translate(-50%,-50%);}
+  }
+
+  /* СЦЕНЫ */
+  .scene-sky{position:absolute;inset:0;background:linear-gradient(180deg, #050810 0%, #0a0f18 50%, #0d1420 100%);}
+  .scene-floor{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(180deg, transparent, #0a0f18);}
+  .scene-moon{
+    position:absolute;top:15%;right:15%;
+    width:80px;height:80px;
+    background:radial-gradient(circle, #fef3c7 0%, #fbbf24 60%, transparent 70%);
+    border-radius:50%;
+    opacity:.4;
+    box-shadow:0 0 60px rgba(251,191,36,.3);
+  }
+  body[data-season="broken"] .scene-moon{
+    background:radial-gradient(circle, #fca5a5 0%, #ef4444 60%, transparent 70%);
+    box-shadow:0 0 60px rgba(239,68,68,.4);
+  }
+  body[data-season="secret"] .scene-moon{
+    background:radial-gradient(circle, #e9d5ff 0%, #a78bfa 60%, transparent 70%);
+    box-shadow:0 0 60px rgba(167,139,250,.5);
+  }
+
+  .scene-stars{position:absolute;inset:0;pointer-events:none;}
+  .scene-star{
+    position:absolute;
+    width:2px;height:2px;
+    background:#fff;
+    border-radius:50%;
+    opacity:.3;
+    animation:twinkle 3s infinite;
+  }
+  @keyframes twinkle{50%{opacity:1;}}
+
+  /* КАРУСЕЛЬ */
+  .carousel{position:absolute;bottom:25%;left:50%;transform:translateX(-50%);width:300px;height:200px;}
+  .carousel .wheel{
+    position:absolute;bottom:40px;left:50%;
+    transform:translateX(-50%);
+    width:220px;height:140px;
+    border:4px solid #334155;
+    border-radius:50% 50% 0 0;
+    border-bottom:none;
+    animation:carouselSpin 8s linear infinite;
+  }
+  @keyframes carouselSpin{
+    0%{transform:translateX(-50%) rotate(-3deg);}
+    50%{transform:translateX(-50%) rotate(3deg);}
+    100%{transform:translateX(-50%) rotate(-3deg);}
+  }
+  .carousel .bulb{
+    position:absolute;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 10px var(--gold);
+    animation:bulbBlink 1.5s infinite;
+  }
+  @keyframes bulbBlink{50%{opacity:.3;}}
+  .carousel .base{
+    position:absolute;bottom:0;left:50%;
+    transform:translateX(-50%);
+    width:240px;height:40px;
+    background:linear-gradient(180deg,#1e293b,#0d1420);
+    border-radius:6px;
+    border:2px solid #334155;
+  }
+  .carousel .pole{
+    position:absolute;bottom:40px;left:50%;
+    transform:translateX(-50%);
+    width:6px;height:100px;
+    background:#334155;
+  }
+
+  /* ФОНТАН */
+  .fountain{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);width:280px;height:220px;}
+  .fountain .basin{
+    position:absolute;bottom:0;left:50%;
+    transform:translateX(-50%);
+    width:260px;height:60px;
+    background:linear-gradient(180deg,#1e293b,#0a0f18);
+    border:3px solid #334155;
+    border-radius:0 0 50% 50% / 0 0 100% 100%;
+  }
+  .fountain .water{
+    position:absolute;bottom:60px;left:50%;
+    transform:translateX(-50%);
+    width:200px;height:8px;
+    background:linear-gradient(90deg,transparent,#38bdf8,transparent);
+    border-radius:50%;
+    animation:waterFlow 2s ease-in-out infinite;
+  }
+  @keyframes waterFlow{
+    0%,100%{width:180px;opacity:.6;}
+    50%{width:220px;opacity:1;}
+  }
+  .fountain .jet{
+    position:absolute;bottom:60px;left:50%;
+    transform:translateX(-50%);
+    width:4px;
+    background:linear-gradient(0deg,#38bdf8,transparent);
+    border-radius:2px;
+    animation:jetUp 2s infinite;
+  }
+  @keyframes jetUp{
+    0%{height:0;opacity:0;}
+    20%{height:100px;opacity:1;}
+    100%{height:140px;opacity:0;}
+  }
+
+  /* ДЕРЕВО */
+  .tree{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);width:200px;height:280px;}
+  .tree .trunk{
+    position:absolute;bottom:0;left:50%;
+    transform:translateX(-50%);
+    width:30px;height:100px;
+    background:linear-gradient(90deg,#1e293b,#334155,#1e293b);
+  }
+  .tree .crown{
+    position:absolute;bottom:80px;left:50%;
+    transform:translateX(-50%);
+    width:180px;height:160px;
+    background:radial-gradient(circle,#4ade80 0%, #16a34a 50%, transparent 70%);
+    border-radius:50%;
+    opacity:.5;
+    animation:treeSway 4s ease-in-out infinite;
+  }
+  @keyframes treeSway{
+    0%,100%{transform:translateX(-50%) rotate(-2deg);}
+    50%{transform:translateX(-50%) rotate(2deg);}
+  }
+  .tree .leaf{
+    position:absolute;
+    font-size:1.2rem;
+    animation:leafFall 5s linear infinite;
+  }
+  @keyframes leafFall{
+    0%{transform:translateY(-50px) rotate(0deg);opacity:1;}
+    100%{transform:translateY(150px) rotate(360deg);opacity:0;}
+  }
+
+  /* ГОРКА */
+  .slide{position:absolute;bottom:15%;left:50%;transform:translateX(-50%);width:340px;height:280px;}
+  .slide .ramp{
+    position:absolute;bottom:0;
+    width:100%;height:100%;
+    background:linear-gradient(135deg, transparent 40%, #38bdf8 50%, #0ea5e9 60%, transparent 100%);
+    opacity:.4;
+    clip-path:polygon(0% 100%, 50% 20%, 100% 100%);
+  }
+  .slide .snow{
+    position:absolute;bottom:0;left:0;right:0;
+    height:60px;
+    background:linear-gradient(180deg, #e0f2fe, #bae6fd);
+    opacity:.3;
+    border-radius:50% 50% 0 0;
+  }
+  .slide .flake{
+    position:absolute;
+    color:#e0f2fe;
+    font-size:.9rem;
+    animation:snowFall 4s linear infinite;
+    opacity:.7;
+  }
+  @keyframes snowFall{
+    0%{transform:translateY(-30px) rotate(0deg);opacity:0;}
+    20%{opacity:.7;}
+    100%{transform:translateY(200px) rotate(180deg);opacity:0;}
+  }
+
+  /* КАТОК */
+  .rink{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);width:380px;height:180px;}
+  .rink .ice{
+    position:absolute;bottom:0;left:0;right:0;
+    height:120px;
+    background:linear-gradient(180deg, rgba(56,189,248,.2), rgba(56,189,248,.4));
+    border:2px solid rgba(56,189,248,.5);
+    border-radius:50% / 30%;
+    animation:iceShimmer 3s ease-in-out infinite;
+  }
+  @keyframes iceShimmer{
+    0%,100%{opacity:.6;}
+    50%{opacity:.9;}
+  }
+
+  /* КЛУМБА */
+  .flowerbed{
+    position:absolute;bottom:20%;left:50%;transform:translateX(-50%);
+    width:380px;height:180px;
+    display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;
+    gap:14px;padding:0 20px;
+  }
+  .flower{
+    font-size:1.6rem;
+    animation:flowerSway 3s ease-in-out infinite;
+    filter:drop-shadow(0 0 8px rgba(244,114,182,.4));
+  }
+  .flower:nth-child(2n){animation-delay:.5s;}
+  .flower:nth-child(3n){animation-delay:1s;}
+  @keyframes flowerSway{
+    0%,100%{transform:rotate(-5deg);}
+    50%{transform:rotate(5deg);}
+  }
+
+  /* ЛАБИРИНТ */
+  .maze{position:absolute;inset:10%;border:2px solid rgba(167,139,250,.3);border-radius:8px;}
+  .maze::before, .maze::after{content:'';position:absolute;background:rgba(167,139,250,.2);}
+  .maze::before{top:20%;left:0;right:0;height:2px;}
+  .maze::after{top:60%;left:0;right:0;height:2px;}
+  .maze .wall{position:absolute;background:rgba(167,139,250,.25);}
+
+  /* АЛЛЕЯ */
+  .alley{position:absolute;inset:0;}
+  .alley .path{
+    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+    width:200px;height:100%;
+    background:linear-gradient(180deg, transparent, rgba(100,116,139,.15));
+    clip-path:polygon(35% 0%, 65% 0%, 100% 100%, 0% 100%);
+  }
+  .alley .lamp{position:absolute;bottom:40%;width:4px;height:80px;background:#334155;}
+  .alley .lamp::after{
+    content:'';position:absolute;
+    top:-10px;left:50%;transform:translateX(-50%);
+    width:24px;height:14px;
+    background:radial-gradient(circle, var(--gold), transparent);
+    border-radius:50%;
+    box-shadow:0 0 30px var(--gold);
+    animation:lampFlicker 4s infinite;
+  }
+  @keyframes lampFlicker{
+    0%,100%{opacity:.9;}
+    45%{opacity:.3;}
+    47%{opacity:.9;}
+    48%{opacity:.2;}
+    50%{opacity:.9;}
+  }
+
+  /* ТОННЕЛЬ */
+  .tunnel{position:absolute;inset:0;background:radial-gradient(ellipse at center, #0a0f18 0%, #000 80%);}
+  .tunnel::before{
+    content:'';position:absolute;
+    top:50%;left:50%;transform:translate(-50%,-50%);
+    width:60%;height:60%;
+    border:3px solid #1e293b;border-radius:50%;
+    animation:tunnelPulse 4s infinite;
+  }
+  @keyframes tunnelPulse{
+    0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.5;}
+    50%{transform:translate(-50%,-50%) scale(1.05);opacity:.8;}
+  }
+
+  /* КРЫША */
+  .roof{position:absolute;inset:0;background:linear-gradient(180deg, #1e1b4b 0%, #0a0f18 100%);}
+  .roof .tiles{
+    position:absolute;inset:0;
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    grid-template-rows:repeat(6,1fr);
+    gap:2px;padding:20px;
+  }
+  .roof .tile{background:linear-gradient(180deg,#334155,#1e293b);border-radius:2px;}
+
+  /* ГЛАВНАЯ СЦЕНА */
+  .stage-scene{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%, #450a0a 0%, #0a0f18 70%);}
+  .stage-curtain-top{
+    position:absolute;top:0;left:0;right:0;height:25%;
+    background:linear-gradient(180deg,#7f1d1d,#450a0a);
+    box-shadow:0 5px 30px rgba(0,0,0,.8);
+    z-index:2;
+  }
+  .stage-curtain-left{
+    position:absolute;top:0;left:0;width:15%;height:100%;
+    background:linear-gradient(90deg,#7f1d1d,#450a0a);
+    box-shadow:5px 0 20px rgba(0,0,0,.6);
+    z-index:2;
+  }
+  .stage-curtain-right{
+    position:absolute;top:0;right:0;width:15%;height:100%;
+    background:linear-gradient(-90deg,#7f1d1d,#450a0a);
+    box-shadow:-5px 0 20px rgba(0,0,0,.6);
+    z-index:2;
+  }
+  .stage-podium{
+    position:absolute;bottom:15%;left:20%;right:20%;height:20%;
+    background:linear-gradient(180deg,#78350f,#451a03);
+    border:3px solid #92400e;
+    border-radius:8px;
+    box-shadow:0 10px 40px rgba(0,0,0,.6);
+    z-index:1;
+  }
+  .stage-spotlight{
+    position:absolute;top:5%;
+    width:70px;height:70px;
+    background:radial-gradient(circle,#fef3c7 0%,#fbbf24 50%,transparent 80%);
+    border-radius:50%;
+    box-shadow:0 0 50px rgba(251,191,36,.7);
+    animation:spotlightPulse 2s infinite;
+    z-index:2;
+  }
+  .stage-spotlight.left{left:22%;}
+  .stage-spotlight.right{right:22%;animation-delay:1s;}
+  @keyframes spotlightPulse{
+    0%,100%{opacity:.6;transform:scale(1);}
+    50%{opacity:1;transform:scale(1.1);}
+  }
+  .stage-sign{
+    position:absolute;top:15%;left:50%;transform:translateX(-50%);
+    padding:8px 24px;
+    background:rgba(0,0,0,.75);
+    border:2px solid var(--gold);
+    border-radius:8px;
+    color:var(--gold);
+    font-weight:900;
+    letter-spacing:3px;
+    font-size:.85rem;
+    z-index:3;
+    text-transform:uppercase;
+  }
+
+  /* ДЖАМПСКЕЙР */
+  #jumpScare{
+    position:fixed;inset:0;z-index:500;
+    background:#000;
+    display:none;
+    align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  #jumpScare.show{display:flex;animation:shake .1s infinite;}
+  @keyframes shake{
+    0%{transform:translate(0,0);}
+    25%{transform:translate(-5px,3px);}
+    50%{transform:translate(5px,-3px);}
+    75%{transform:translate(-3px,-5px);}
+    100%{transform:translate(3px,5px);}
+  }
+  #jumpScare .scare-bg{
+    position:absolute;inset:0;
+    background:radial-gradient(circle at center, rgba(239,68,68,.5) 0%, #000 70%);
+    animation:scareGlow .3s infinite alternate;
+  }
+  @keyframes scareGlow{from{opacity:.7;}to{opacity:1;}}
+  #jumpScare .scare-emoji{
+    font-size:15rem;
+    z-index:2;
+    animation:scareGrow .5s ease forwards;
+    filter:drop-shadow(0 0 50px currentColor);
+    position:relative;
+  }
+  @keyframes scareGrow{from{transform:scale(.3);opacity:0;}to{transform:scale(1);opacity:1;}}
+  #jumpScare .scare-text{
+    position:absolute;bottom:10%;
+    color:#fff;font-size:1.5rem;letter-spacing:5px;
+    text-transform:uppercase;font-weight:900;z-index:3;
+    text-shadow:0 0 20px var(--danger);
+    animation:pulse 1s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+
+  /* ПАУЗА */
+  #pauseOverlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;text-align:center;padding:20px;}
+  #pauseOverlay.show{display:flex;}
+  #pauseOverlay h1{font-size:3rem;color:var(--accent);margin-bottom:30px;letter-spacing:4px;text-shadow:0 0 30px var(--accent);}
+  #pauseOverlay button{padding:14px 32px;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#0f172a;font-weight:700;font-size:1rem;cursor:pointer;transition:transform .15s;margin:6px;min-width:220px;}
+  #pauseOverlay button:hover{transform:translateY(-2px);}
+  #pauseOverlay button.secondary{background:#1e293b;color:var(--text);border:2px solid var(--border);}
+
+  /* КОНЕЦ */
+  .end-screen{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100;text-align:center;padding:20px;}
+  .end-screen.show{display:flex;}
+  .end-screen h1{font-size:3rem;margin-bottom:20px;letter-spacing:4px;}
+  .end-screen.win h1{color:var(--success);text-shadow:0 0 30px var(--success);}
+  .end-screen.lose h1{color:var(--danger);text-shadow:0 0 30px var(--danger);}
+  .end-screen.secret h1{
+    background:linear-gradient(90deg,var(--star),var(--accent2),var(--star));
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:secretShine 3s linear infinite;
+  }
+  @keyframes secretShine{0%{background-position:0% 50%;}100%{background-position:200% 50%;}}
+  .end-screen p{color:var(--muted);margin-bottom:20px;font-size:1.1rem;line-height:1.6;max-width:500px;}
+  .end-screen .end-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px;}
+  .end-screen button{padding:14px 28px;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#0f172a;font-weight:700;font-size:1rem;cursor:pointer;transition:transform .15s;min-width:180px;}
+  .end-screen button:hover{transform:translateY(-2px);}
+  .end-screen button.secondary{background:#1e293b;color:var(--text);border:2px solid var(--border);}
+  .end-screen .star-big{font-size:5rem;margin-bottom:20px;animation:starPulse 2s infinite;}
+  @keyframes starPulse{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 20px var(--star));}
+    50%{transform:scale(1.15);filter:drop-shadow(0 0 40px var(--star));}
+  }
+
+  /* АДМИНКА */
+  #admin{position:fixed;top:10px;right:10px;width:340px;max-height:90vh;overflow-y:auto;background:rgba(10,15,24,.95);border:2px solid var(--accent);border-radius:12px;padding:16px;z-index:200;display:none;box-shadow:0 0 30px rgba(56,189,248,.3);font-size:.85rem;}
+  #admin.show{display:block;}
+  #admin h3{color:var(--accent);font-size:1rem;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+  #admin h3 button{background:transparent;border:none;color:var(--danger);cursor:pointer;font-size:1.2rem;padding:0 4px;}
+  #admin .admin-section{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  #admin .admin-section:last-child{border-bottom:none;}
+  #admin .admin-section label{display:block;color:var(--muted);font-size:.75rem;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;}
+  #admin .row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+  #admin button{padding:6px 12px;background:#1e293b;border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-size:.8rem;transition:all .15s;}
+  #admin button:hover{background:var(--accent);color:#0f172a;border-color:var(--accent);}
+  #admin button.danger:hover{background:var(--danger);border-color:var(--danger);color:#fff;}
+  #admin button.success:hover{background:var(--success);border-color:var(--success);color:#0f172a;}
+  #admin button.on{background:var(--success);color:#0f172a;border-color:var(--success);}
+  #admin .log{background:#000;border-radius:6px;padding:8px;max-height:120px;overflow-y:auto;font-family:monospace;font-size:.7rem;color:var(--muted);line-height:1.5;}
+  #admin .debug-info{background:#000;border-radius:6px;padding:8px;font-family:monospace;font-size:.7rem;color:var(--gold);line-height:1.6;margin-bottom:8px;}
+
+  #test-panel{position:fixed;top:10px;left:10px;background:rgba(167,139,250,.15);border:2px solid var(--accent2);border-radius:10px;padding:10px 14px;z-index:190;display:none;font-size:.8rem;color:var(--text);}
+  #test-panel.show{display:block;}
+  #test-panel .title{color:var(--accent2);font-weight:700;margin-bottom:6px;}
+  #test-panel .row{display:flex;gap:10px;color:var(--muted);}
+  #test-panel .row b{color:var(--text);}
+
+  #toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--accent);color:#0f172a;padding:12px 24px;border-radius:10px;font-weight:700;z-index:300;transition:transform .3s;box-shadow:0 10px 30px rgba(56,189,248,.4);pointer-events:none;}
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  #toast.gold{background:var(--gold);}
+  #toast.danger{background:var(--danger);color:#fff;}
+  #toast.success{background:var(--success);}
+
+  @media (max-width:700px){
+    #clock{font-size:2rem;top:10px;}
+    #night-label{top:56px;font-size:.7rem;}
+    #energy-wrap{width:140px;}
+    .usage-bar{width:16px;height:8px;}
+    #usage{bottom:100px;}
+    .door-btn{width:50px;height:50px;font-size:1.2rem;}
+    .door-light-btn{width:42px;height:42px;font-size:1rem;bottom:100px;}
+    .door-btn.left-btn,.door-light-btn.left-btn{left:calc(25% - 65px);}
+    .door-btn.right-btn,.door-light-btn.right-btn{right:calc(25% - 65px);}
+    #admin{width:calc(100vw - 20px);right:10px;}
+    .panel-btn{padding:10px 14px;font-size:.8rem;}
+    #console{display:none;}
+    .end-screen h1{font-size:2rem;}
+    #camerasOverlay{grid-template-columns:70px 1fr;}
+    .cam-item{padding:8px;justify-content:center;}
+    .cam-item .name,.cam-item .num{display:none;}
+    .cam-item .emoji{font-size:1.5rem;}
+  }
+</style>
+</head>
+<body data-season="summer">
+
+<div id="office">
+  <div class="wall wall-left"></div>
+  <div class="wall wall-right"></div>
+  <div class="wall wall-back">
+    <div class="poster">🎡<div class="poster-text">SEASONS PARK</div></div>
+    <div class="poster2">🎢<div class="poster-text">EST. 1987</div></div>
+  </div>
+
+  <div class="door left" id="doorLeft"></div>
+  <div class="door right" id="doorRight"></div>
+  <div class="door-glow left" id="glowLeft"></div>
+  <div class="door-glow right" id="glowRight"></div>
+
+  <div class="door-char left" id="charLeft" style="display:none;"></div>
+  <div class="door-char right" id="charRight" style="display:none;"></div>
+  <div class="ceiling-char" id="charCeiling"></div>
+
+  <button class="door-light-btn left-btn" id="lightLeft" title="Фонарь (A)">🔦</button>
+  <button class="door-btn left-btn" id="btnLeft" title="Дверь (Q)">🚪</button>
+  <button class="door-light-btn right-btn" id="lightRight" title="Фонарь (D)">🔦</button>
+  <button class="door-btn right-btn" id="btnRight" title="Дверь (E)">🚪</button>
+
+  <div id="clock">12:00</div>
+  <div id="night-label">Ночь 1 · ☀️ Лето</div>
+
+  <div id="energy-wrap">
+    <div id="energy-label">⚡ ЭНЕРГИЯ</div>
+    <div id="energy-bar"><div id="energy-fill"></div></div>
+    <div id="energy-text">100%</div>
+  </div>
+
+  <div id="usage">
+    <div class="usage-bar" id="u1"></div>
+    <div class="usage-bar" id="u2"></div>
+    <div class="usage-bar" id="u3"></div>
+    <div class="usage-bar" id="u4"></div>
+  </div>
+
+  <div id="bottomPanel">
+    <button class="panel-btn" id="camBtn">📹 Камеры <span class="key-hint">C</span></button>
+    <button class="panel-btn secondary" id="pauseBtn">⏸ Пауза <span class="key-hint">Esc</span></button>
+  </div>
+
+  <div id="console">
+    <span class="key">Q</span> / <span class="key">E</span> двери<br>
+    <span class="key">A</span> / <span class="key">D</span> свет<br>
+    <span class="key">C</span> камеры
+  </div>
+</div>
+
+<div id="camerasOverlay">
+  <div id="camList">
+    <div class="cam-title">📹 Камеры</div>
+    <div class="cam-season" id="camSeason"></div>
+  </div>
+  <div id="camView">
+    <div id="camScene"></div>
+    <div id="flashlightDarkness"></div>
+    <div id="camNoise"></div>
+
+    <div id="camLabel">
+      <span class="rec"></span>
+      <span id="camNameLabel">ГЛАВНАЯ СЦЕНА</span>
+    </div>
+
+    <div id="camClock">
+      <span id="camTime">12:00</span>
+      <span class="night-info" id="camNightInfo">Ночь 1 · Лето</span>
+    </div>
+
+    <button id="flashlightBtn" title="Фонарик (F)">🔦</button>
+
+    <div id="camControls">
+      <button id="backBtn">← В офис <span style="opacity:.7;font-size:.75rem;font-family:monospace;">(C)</span></button>
+      <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn">←</button>
+        <button class="nav-btn" id="nextBtn">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="jumpScare">
+  <div class="scare-bg"></div>
+  <div class="scare-emoji" id="scareEmoji">🦁</div>
+  <div class="scare-text" id="scareText">ВЫ ПОГИБЛИ</div>
+</div>
+
+<div id="pauseOverlay">
+  <h1>⏸ ПАУЗА</h1>
+  <button onclick="resumeGame()">▶️ Продолжить</button>
+  <button class="secondary" onclick="restartGame()">🔄 Начать заново</button>
+  <button class="secondary" onclick="location.href='index.html'">🏠 В главное меню</button>
+</div>
+
+<div class="end-screen" id="endScreen">
+  <h1 id="endTitle">ПОБЕДА</h1>
+  <p id="endText">Вы дожили до 6:00</p>
+  <div class="end-buttons" id="endButtons">
+    <button onclick="restartGame()">🔄 Сыграть снова</button>
+    <button class="secondary" onclick="location.href='index.html'">🏠 В главное меню</button>
+  </div>
+</div>
+
+<div class="end-screen secret" id="secretScreen">
+  <div class="star-big">⭐</div>
+  <h1>ПАРК ХРАНИТ ТАЙНУ</h1>
+  <p>Вы прошли все 5 ночей.<br>Но Seasons Park ещё не всё показал...</p>
+  <p style="color:var(--star);font-weight:700;font-size:1.2rem;">Открыта секретная ночь 6</p>
+  <div class="end-buttons">
+    <button onclick="startSecretNight()">⭐ Играть ночь 6</button>
+    <button class="secondary" onclick="location.href='index.html'">🏠 В главное меню</button>
+  </div>
+</div>
+
+<div class="end-screen secret" id="customScreen">
+  <div class="star-big">🎨</div>
+  <h1>ВЫ ЛЕГЕНДА</h1>
+  <p>Вы прошли секретную ночь.<br>Теперь вы можете создавать свои собственные ночи.</p>
+  <p style="color:var(--gold);font-weight:700;font-size:1.2rem;">Открыта кастомная ночь</p>
+  <div class="end-buttons">
+    <button onclick="location.href='custom-night.html'">🎨 Создать ночь</button>
+    <button class="secondary" onclick="location.href='index.html'">🏠 В главное меню</button>
+  </div>
+</div>
+
+<div id="test-panel">
+  <div class="title">🧪 ТЕСТОВЫЙ РЕЖИМ</div>
+  <div class="row">Время: <b id="test-time">12:00</b></div>
+  <div class="row">Энергия: <b id="test-energy">100%</b></div>
+  <div class="row">Расход: <b id="test-usage">1</b></div>
+  <div class="row">Аниматроники: <b id="test-chars">—</b></div>
+</div>
+
+<div id="admin">
+  <h3>🛠️ АДМИН-ПАНЕЛЬ <button id="adminClose">×</button></h3>
+
+  <div class="admin-section">
+    <label>📊 Отладка</label>
+    <div class="debug-info" id="debugInfo">—</div>
+  </div>
+
+  <div class="admin-section">
+    <label>⏰ Время</label>
+    <div class="row">
+      <button onclick="admin.skipTo(1)">01:00</button>
+      <button onclick="admin.skipTo(2)">02:00</button>
+      <button onclick="admin.skipTo(3)">03:00</button>
+      <button onclick="admin.skipTo(4)">04:00</button>
+      <button onclick="admin.skipTo(5)">05:00</button>
+      <button class="success" onclick="admin.skipTo(6)">→ 6:00</button>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <label>⚡ Энергия</label>
+    <div class="row">
+      <button onclick="admin.setEnergy(100)">100%</button>
+      <button onclick="admin.setEnergy(50)">50%</button>
+      <button onclick="admin.setEnergy(10)">10%</button>
+    </div>
+    <div class="row">
+      <button id="infEnergyBtn" onclick="admin.toggleInfEnergy()">∞ Бесконечная: ВЫКЛ</button>
+      <button id="godBtn" onclick="admin.toggleGod()">💀 Бессмертие: ВЫКЛ</button>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <label>🎭 Аниматроники</label>
+    <div class="row">
+      <button onclick="admin.freezeAll()">❄️ Заморозить</button>
+      <button onclick="admin.resetChars()">🔄 Сбросить</button>
+      <button class="danger" onclick="admin.forceAttack()">💀 Атака</button>
+    </div>
+    <div class="debug-info" id="charsDebug">—</div>
+  </div>
+
+  <div class="admin-section">
+    <label>🌙 Ночь</label>
+    <div class="row">
+      <button onclick="admin.setNight(1)">1</button>
+      <button onclick="admin.setNight(2)">2</button>
+      <button onclick="admin.setNight(3)">3</button>
+      <button onclick="admin.setNight(4)">4</button>
+      <button onclick="admin.setNight(5)">5</button>
+      <button onclick="admin.setNight(6)">6</button>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <label>🎮 Действия</label>
+    <div class="row">
+      <button class="success" onclick="admin.forceWin()">🏆 Победа</button>
+      <button class="danger" onclick="admin.forceLose()">💀 Проигрыш</button>
+      <button onclick="admin.restart()">🔄 Перезапуск</button>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <label>📜 Лог</label>
+    <div class="log" id="adminLog"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// game.html — полная игра с Главной сценой + камеры-оверлей
+// ============================================================
+
+const CONFIG = {
+  HOUR_DURATION: 89,
+  TOTAL_HOURS: 6,
+  ENERGY_MAX: 100,
+  BASE_DRAIN_PER_SEC: 1 / 9.6,
+  DRAIN_MULTIPLIERS: { 1:1, 2:2, 3:3, 4:4 },
+};
+
+const NIGHT_SEASONS = { 1:'summer', 2:'autumn', 3:'winter', 4:'spring', 5:'broken', 6:'secret' };
+const SEASONS = {
+  summer:{name:'Лето',emoji:'☀️'}, autumn:{name:'Осень',emoji:'🍁'},
+  winter:{name:'Зима',emoji:'❄️'}, spring:{name:'Весна',emoji:'🌸'},
+  broken:{name:'Сломанный парк',emoji:'🔥'}, secret:{name:'Секретная ночь',emoji:'⭐'},
+};
+
+const CAMERAS = [
+  { id:'main-stage', num:1, name:'Главная сцена', emoji:'🎭' },
+  { id:'carousel',  num:2, name:'Карусель',      emoji:'🎠' },
+  { id:'fountain',  num:3, name:'Фонтан',        emoji:'⛲' },
+  { id:'tree',      num:4, name:'Старое дерево', emoji:'🌳' },
+  { id:'slide',     num:5, name:'Ледяная горка', emoji:'🎢' },
+  { id:'rink',      num:6, name:'Каток',         emoji:'⛸️' },
+  { id:'flowerbed', num:7, name:'Клумба',        emoji:'🌸' },
+  { id:'maze',      num:8, name:'Лабиринт',      emoji:'🌿' },
+  { id:'alley',     num:9, name:'Главная аллея', emoji:'🛤️' },
+  { id:'tunnel',    num:0, name:'Тоннель',       emoji:'🚇' },
+  { id:'roof',      num:-1, name:'Крыша',        emoji:'🏠' },
+];
+
+const game = {
+  running: false, paused: false,
+  hour: 0, timeInHour: 0,
+  energy: 100, night: 1, season: 'summer',
+  leftDoor: false, rightDoor: false,
+  leftLight: false, rightLight: false,
+  leftFrozen: false, rightFrozen: false,
+  camerasOpen: false,
+  currentCam: 'main-stage',
+  flashlight: false,
+  flashlightSize: 280,
+  flashlightX: 50, flashlightY: 50,
+  godMode: false, infiniteEnergy: false,
+  isCustom: false, customAI: null,
+  logs: [], startTime: 0,
+};
+
+const $ = id => document.getElementById(id);
+
+const params = new URLSearchParams(location.search);
+let requestedNight = parseInt(params.get('night')) || 1;
+if (requestedNight < 1 || requestedNight > 6) requestedNight = 1;
+game.night = requestedNight;
+game.season = NIGHT_SEASONS[requestedNight] || 'summer';
+document.body.dataset.season = game.season;
+
+if (params.has('custom')){
+  const ai = params.get('custom').split(',').map(Number);
+  game.isCustom = true;
+  game.customAI = { lion: ai[0]||0, owl: ai[1]||0, wolf: ai[2]||0, rabbit: ai[3]||0 };
+}
+
+function formatTime(hour, secInHour = 0){
+  const h = hour === 0 ? 12 : hour;
+  const m = Math.floor((secInHour / CONFIG.HOUR_DURATION) * 60);
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+function showToast(text, type = ''){
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = type; }, 2500);
+}
+function log(msg){
+  const t = formatTime(game.hour, game.timeInHour);
+  game.logs.unshift(`<div><span style="color:var(--accent)">[${t}]</span> ${msg}</div>`);
+  if (game.logs.length > 30) game.logs.pop();
+  $('adminLog').innerHTML = game.logs.join('');
+}
+function getUsageLevel(){
+  let level = 1;
+  if (game.leftDoor) level++;
+  if (game.rightDoor) level++;
+  if (game.leftLight) level++;
+  if (game.rightLight) level++;
+  if (game.camerasOpen) level++;
+  return Math.min(level, 4);
+}
+function getDrainPerSec(){
+  const usage = getUsageLevel();
+  return CONFIG.BASE_DRAIN_PER_SEC * (CONFIG.DRAIN_MULTIPLIERS[usage] || 1);
+}
+
+window.SP_GAME = {
+  canAnimatronicAttack(a){
+    if (game.godMode) return false;
+    if (a.type === 'door'){
+      if (a.door === 'left') return !game.leftDoor || game.leftFrozen;
+      if (a.door === 'right') return !game.rightDoor || game.rightFrozen;
+    }
+    if (a.type === 'ceiling') return !game.leftLight && !game.rightLight;
+    if (a.type === 'random'){
+      if (a.door === 'left') return !game.leftDoor || game.leftFrozen;
+      if (a.door === 'right') return !game.rightDoor || game.rightFrozen;
+    }
+    return false;
+  }
+};
+
+function triggerJumpScare(animatronic){
+  game.running = false;
+  $('jumpScare').classList.add('show');
+  $('scareEmoji').textContent = animatronic.emoji;
+  $('scareEmoji').style.color = animatronic.color;
+  $('scareText').textContent = animatronic.name.toUpperCase();
+  log(`💀 АТАКА: ${animatronic.name}`);
+  setTimeout(() => {
+    $('jumpScare').classList.remove('show');
+    loseGame(`Вас поймал ${animatronic.name}`);
+  }, 2500);
+}
+
+function render(){
+  $('clock').textContent = formatTime(game.hour, game.timeInHour);
+  const season = SEASONS[game.season];
+  $('night-label').textContent = `Ночь ${game.night} · ${season.emoji} ${season.name}`;
+
+  const e = Math.max(0, Math.min(100, game.energy));
+  $('energy-fill').style.width = e + '%';
+  $('energy-text').textContent = Math.floor(e) + '%';
+  $('energy-fill').className = '';
+  if (e < 20) $('energy-fill').classList.add('critical');
+  else if (e < 50) $('energy-fill').classList.add('warn');
+
+  $('doorLeft').classList.toggle('closed', game.leftDoor);
+  $('doorRight').classList.toggle('closed', game.rightDoor);
+  $('doorLeft').classList.toggle('frozen', game.leftFrozen);
+  $('doorRight').classList.toggle('frozen', game.rightFrozen);
+  $('btnLeft').classList.toggle('active', game.leftDoor);
+  $('btnRight').classList.toggle('active', game.rightDoor);
+  $('btnLeft').classList.toggle('frozen', game.leftFrozen);
+  $('btnRight').classList.toggle('frozen', game.rightFrozen);
+
+  $('lightLeft').classList.toggle('on', game.leftLight);
+  $('lightRight').classList.toggle('on', game.rightLight);
+  $('glowLeft').classList.toggle('on', game.leftLight);
+  $('glowRight').classList.toggle('on', game.rightLight);
+
+  const usage = getUsageLevel();
+  for (let i = 1; i <= 4; i++){
+    const el = $('u' + i);
+    el.className = 'usage-bar';
+    if (i <= usage) el.classList.add('on-' + usage);
+  }
+
+  renderDoorChars();
+
+  if ($('test-panel').classList.contains('show')){
+    $('test-time').textContent = formatTime(game.hour, game.timeInHour);
+    $('test-energy').textContent = Math.floor(e) + '%';
+    $('test-usage').textContent = usage;
+    $('test-chars').textContent = getActiveCharsText();
+  }
+
+  if ($('admin').classList.contains('show')){
+    $('debugInfo').innerHTML = `
+      Энергия: <b>${game.energy.toFixed(2)}%</b><br>
+      Полосок: <b>${usage}</b><br>
+      Расход: <b>${getDrainPerSec().toFixed(4)}%/сек</b><br>
+      Ночь: <b>${game.night}</b> · Сезон: <b>${game.season}</b><br>
+      Камеры: <b>${game.camerasOpen ? 'ОТКРЫТЫ' : 'закрыты'}</b>
+    `;
+    renderCharsDebug();
+  }
+
+  $('camTime').textContent = formatTime(game.hour, game.timeInHour);
+  $('camNightInfo').textContent = `Ночь ${game.night} · ${season.name}`;
+}
+
+function renderDoorChars(){
+  const mgr = window.SP_CHARS?.Manager;
+  if (!mgr || !mgr.running){
+    $('charLeft').style.display = 'none';
+    $('charRight').style.display = 'none';
+    $('charCeiling').classList.remove('on');
+    return;
+  }
+  const list = mgr.list;
+
+  const leftChar = list.find(a => a.active && a.state === 'at-door' && a.door === 'left' && a.type !== 'ceiling');
+  if (leftChar){
+    $('charLeft').textContent = leftChar.emoji;
+    $('charLeft').style.color = leftChar.color;
+    $('charLeft').style.display = 'block';
+  } else {
+    $('charLeft').style.display = 'none';
+  }
+
+  const rightChar = list.find(a => a.active && a.state === 'at-door' && a.door === 'right' && a.type !== 'ceiling');
+  if (rightChar){
+    $('charRight').textContent = rightChar.emoji;
+    $('charRight').style.color = rightChar.color;
+    $('charRight').style.display = 'block';
+  } else {
+    $('charRight').style.display = 'none';
+  }
+
+  const ceilingChar = list.find(a => a.active && a.type === 'ceiling' && a.state === 'at-door');
+  if (ceilingChar){
+    $('charCeiling').textContent = ceilingChar.emoji;
+    $('charCeiling').style.color = ceilingChar.color;
+    $('charCeiling').classList.add('on');
+  } else {
+    $('charCeiling').classList.remove('on');
+  }
+}
+
+function getActiveCharsText(){
+  const mgr = window.SP_CHARS?.Manager;
+  if (!mgr || !mgr.running) return '—';
+  const active = mgr.list.filter(a => a.active);
+  if (!active.length) return 'нет';
+  return active.map(a => {
+    const stage = a.onStage ? '🎭' : '';
+    const warn = a.state === 'at-door' ? '⚠️' : '';
+    return `${a.emoji}${stage}${warn}`;
+  }).join(' ');
+}
+
+function renderCharsDebug(){
+  const mgr = window.SP_CHARS?.Manager;
+  if (!mgr) return;
+  const list = mgr.list.map(a => {
+    const state = a.active ? a.state : 'неактивен';
+    const onStage = a.onStage ? ' [на сцене]' : '';
+    const emoji = a.active ? '🟢' : '⚫';
+    return `${emoji} ${a.emoji} ${a.name}: <b>${state}</b>${onStage} (агр. ${a.aggression})`;
+  }).join('<br>');
+  $('charsDebug').innerHTML = list;
+}
+
+function toggleDoor(side){
+  if (!game.running || game.paused) return;
+  if (side === 'left'){
+    if (game.leftFrozen){ showToast('❄️ Дверь заморожена!', 'danger'); return; }
+    game.leftDoor = !game.leftDoor;
+    log(game.leftDoor ? 'Левая дверь ЗАКРЫТА' : 'Левая дверь открыта');
+  } else {
+    if (game.rightFrozen){ showToast('❄️ Дверь заморожена!', 'danger'); return; }
+    game.rightDoor = !game.rightDoor;
+    log(game.rightDoor ? 'Правая дверь ЗАКРЫТА' : 'Правая дверь открыта');
+  }
+  render();
+}
+function toggleLight(side){
+  if (!game.running || game.paused) return;
+  if (side === 'left'){
+    game.leftLight = !game.leftLight;
+    if (game.leftLight) game.rightLight = false;
+  } else {
+    game.rightLight = !game.rightLight;
+    if (game.rightLight) game.leftLight = false;
+  }
+  render();
+}
+function toggleCameras(){
+  if (!game.running || game.paused) return;
+  game.camerasOpen = !game.camerasOpen;
+  if (game.camerasOpen){
+    $('camerasOverlay').classList.add('show');
+    $('office').classList.add('hidden');
+    initCamList();
+    updateCamListStatus();
+    updateCamScene();
+    log('📹 Камеры открыты');
+  } else {
+    $('camerasOverlay').classList.remove('show');
+    $('office').classList.remove('hidden');
+    log('📹 Камеры закрыты');
+  }
+  render();
+}
+function switchCamera(id){
+  game.currentCam = id;
+  updateCamListStatus();
+  updateCamScene();
+}
+function toggleFlashlight(){
+  game.flashlight = !game.flashlight;
+  $('flashlightBtn').classList.toggle('on', game.flashlight);
+  $('flashlightDarkness').classList.toggle('on', game.flashlight);
+  updateFlashlightPos();
+}
+function updateFlashlightPos(){
+  document.documentElement.style.setProperty('--flashlight-size', game.flashlightSize + 'px');
+  document.documentElement.style.setProperty('--flashlight-x', game.flashlightX + '%');
+  document.documentElement.style.setProperty('--flashlight-y', game.flashlightY + '%');
+}
+
+function initCamList(){
+  const el = $('camList');
+  el.innerHTML = '<div class="cam-title">📹 Камеры</div>' +
+    `<div class="cam-season" id="camSeason"></div>`;
+  const seasonEl = $('camSeason');
+  seasonEl.textContent = `Ночь ${game.night} · ${SEASONS[game.season].emoji}`;
+
+  CAMERAS.forEach(cam => {
+    const item = document.createElement('div');
+    item.className = 'cam-item';
+    item.dataset.camId = cam.id;
+    const numDisplay = cam.num >= 0 ? cam.num : '·';
+    item.innerHTML = `
+      <span class="num">${numDisplay}</span>
+      <span class="emoji">${cam.emoji}</span>
+      <span class="name">${cam.name}</span>
+      <span class="status">●</span>
+    `;
+    item.onclick = () => switchCamera(cam.id);
+    el.appendChild(item);
+  });
+}
+
+function updateCamListStatus(){
+  const mgr = window.SP_CHARS?.Manager;
+  document.querySelectorAll('.cam-item').forEach(item => {
+    const camId = item.dataset.camId;
+    const isActive = camId === game.currentCam;
+    item.classList.toggle('active', isActive);
+
+    const hasChar = mgr && mgr.running && mgr.getAtCamera(camId).length > 0;
+    item.classList.toggle('has-char', hasChar);
+
+    const status = item.querySelector('.status');
+    if (status){
+      if (hasChar){
+        const chars = mgr.getAtCamera(camId);
+        status.textContent = chars.map(a => a.emoji).join('');
+      } else {
+        status.textContent = '●';
+      }
+    }
+  });
+}
+
+function updateCamScene(){
+  const cam = CAMERAS.find(c => c.id === game.currentCam);
+  if (!cam) return;
+  $('camNameLabel').textContent = cam.name;
+
+  const scene = SCENES[cam.id];
+  $('camScene').innerHTML = scene ? scene() : '<div style="color:#64748b;display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;">📷 Нет сигнала</div>';
+  addSceneStars();
+
+  const mgr = window.SP_CHARS?.Manager;
+  if (mgr && mgr.running){
+    const charsHere = mgr.getAtCamera(cam.id);
+    const count = charsHere.length;
+    charsHere.forEach((a, i) => {
+      const charEl = document.createElement('div');
+      charEl.className = 'cam-char';
+      charEl.textContent = a.emoji;
+      charEl.style.color = a.color;
+      
+      let offsetX = 0, offsetY = 0;
+      if (cam.id === 'main-stage' && count > 1){
+        // На сцене — расставляем в ряд
+        const spacing = 80;
+        offsetX = (i - (count - 1) / 2) * spacing;
+        offsetY = -30;
+      } else {
+        offsetX = (Math.random() - 0.5) * 40;
+        offsetY = (Math.random() - 0.5) * 30;
+      }
+      charEl.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+      $('camScene').appendChild(charEl);
+    });
+  }
+}
+
+function addSceneStars(){
+  const stars = document.createElement('div');
+  stars.className = 'scene-stars';
+  for (let i = 0; i < 40; i++){
+    const s = document.createElement('div');
+    s.className = 'scene-star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 60 + '%';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    if (Math.random() > 0.85){
+      s.style.width = '3px';
+      s.style.height = '3px';
+      s.style.boxShadow = '0 0 6px #fff';
+    }
+    stars.appendChild(s);
+  }
+  $('camScene').appendChild(stars);
+}
+
+const SCENES = {
+  'main-stage': () => `
+    <div class="stage-scene"></div>
+    <div class="stage-curtain-top"></div>
+    <div class="stage-curtain-left"></div>
+    <div class="stage-curtain-right"></div>
+    <div class="stage-podium"></div>
+    <div class="stage-spotlight left"></div>
+    <div class="stage-spotlight right"></div>
+    <div class="stage-sign">🎭 SEASONS PARK — SHOW STAGE</div>
+  `,
+  carousel: () => {
+    let bulbs = '';
+    for (let i = 0; i < 12; i++){
+      const angle = (i / 12) * Math.PI;
+      const x = 50 + Math.cos(angle) * 45;
+      const y = 30 + Math.sin(angle) * 30;
+      bulbs += `<div class="bulb" style="left:${x}%;top:${y}%;animation-delay:${i*0.1}s;"></div>`;
+    }
+    return `
+      <div class="scene-sky"></div>
+      <div class="scene-moon"></div>
+      <div class="scene-floor"></div>
+      <div class="carousel">
+        <div class="pole"></div>
+        <div class="wheel">${bulbs}</div>
+        <div class="base"></div>
+      </div>
+    `;
+  },
+  fountain: () => `
+    <div class="scene-sky"></div>
+    <div class="scene-moon"></div>
+    <div class="scene-floor"></div>
+    <div class="fountain">
+      <div class="jet"></div>
+      <div class="water"></div>
+      <div class="basin"></div>
+    </div>
+  `,
+  tree: () => {
+    let leaves = '';
+    for (let i = 0; i < 8; i++){
+      leaves += `<div class="leaf" style="left:${10+i*12}%;animation-delay:${i*0.6}s;">🍂</div>`;
+    }
+    return `
+      <div class="scene-sky"></div>
+      <div class="scene-moon"></div>
+      <div class="scene-floor"></div>
+      <div class="tree">
+        <div class="crown"></div>
+        <div class="trunk"></div>
+        ${leaves}
+      </div>
+    `;
+  },
+  slide: () => {
+    let flakes = '';
+    for (let i = 0; i < 10; i++){
+      flakes += `<div class="flake" style="left:${5+i*10}%;animation-delay:${i*0.4}s;">❄</div>`;
+    }
+    return `
+      <div class="scene-sky"></div>
+      <div class="scene-moon"></div>
+      <div class="scene-floor"></div>
+      <div class="slide">
+        <div class="ramp"></div>
+        <div class="snow"></div>
+        ${flakes}
+      </div>
+    `;
+  },
+  rink: () => `
+    <div class="scene-sky"></div>
+    <div class="scene-moon"></div>
+    <div class="scene-floor"></div>
+    <div class="rink"><div class="ice"></div></div>
+  `,
+  flowerbed: () => {
+    const flowers = ['🌸','🌺','🌷','🌸','🌼','🌺','🌸','🌷','🌸','🌼'];
+    return `
+      <div class="scene-sky"></div>
+      <div class="scene-moon"></div>
+      <div class="scene-floor"></div>
+      <div class="flowerbed">${flowers.map(f => `<div class="flower">${f}</div>`).join('')}</div>
+    `;
+  },
+  maze: () => `
+    <div class="scene-sky"></div>
+    <div class="scene-floor"></div>
+    <div class="maze">
+      <div class="wall" style="top:30%;left:10%;width:30%;height:2px;"></div>
+      <div class="wall" style="top:30%;left:10%;width:2px;height:40%;"></div>
+      <div class="wall" style="top:50%;right:10%;width:30%;height:2px;"></div>
+      <div class="wall" style="top:50%;right:10%;width:2px;height:30%;"></div>
+      <div class="wall" style="bottom:20%;left:30%;width:40%;height:2px;"></div>
+    </div>
+  `,
+  alley: () => `
+    <div class="scene-sky"></div>
+    <div class="scene-moon"></div>
+    <div class="alley">
+      <div class="path"></div>
+      <div class="lamp" style="left:20%;"></div>
+      <div class="lamp" style="left:45%;bottom:45%;"></div>
+      <div class="lamp" style="left:70%;"></div>
+    </div>
+  `,
+  tunnel: () => `<div class="tunnel"></div>`,
+  roof: () => `
+    <div class="roof">
+      <div class="tiles">
+        ${Array.from({length:60}).map(() => '<div class="tile"></div>').join('')}
+      </div>
+    </div>
+  `,
+};
+
+let lastTick = 0;
+function gameLoop(timestamp){
+  if (!lastTick) lastTick = timestamp;
+  const dt = Math.min((timestamp - lastTick) / 1000, 0.1);
+  lastTick = timestamp;
+
+  if (game.running && !game.paused){
+    game.timeInHour += dt;
+    if (game.timeInHour >= CONFIG.HOUR_DURATION){
+      game.timeInHour -= CONFIG.HOUR_DURATION;
+      game.hour++;
+      if (game.hour >= CONFIG.TOTAL_HOURS){
+        winGame(); return;
+      }
+      log(`Наступил ${formatTime(game.hour)}`);
+    }
+
+    if (!game.infiniteEnergy){
+      game.energy -= getDrainPerSec() * dt;
+      if (game.energy <= 0){
+        game.energy = 0;
+        if (!game.godMode){ loseGame('⚡ Энергия закончилась'); return; }
+      }
+    }
+
+    const mgr = window.SP_CHARS?.Manager;
+    if (mgr && mgr.running){
+      mgr.update(dt, game.hour);
+      if (game.camerasOpen){
+        updateCamListStatus();
+        updateCamScene();
+      }
+    }
+
+    render();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function winGame(){
+  game.running = false;
+  const mgr = window.SP_CHARS?.Manager;
+  if (mgr) mgr.running = false;
+
+  const timeMs = Date.now() - game.startTime;
+  const wasCompleted = SP.isNightCompleted(game.night);
+
+  if (!game.isCustom){
+    SP.completeNight(game.night);
+    SP.recordTime(game.night, timeMs);
+    if (!wasCompleted){
+      SP.addStars(1);
+      showToast('⭐ +1 звезда за прохождение!', 'star');
+    }
+  }
+
+  if (game.night === 5 && !SP.get().night6){
+    $('secretScreen').classList.add('show');
+    log('🎉 ВСЕ 5 НОЧЕЙ ПРОЙДЕНЫ');
+    return;
+  }
+  if (game.night === 6 && !SP.isCustomUnlocked()){
+    $('customScreen').classList.add('show');
+    log('🎨 КАСТОМНАЯ НОЧЬ ОТКРЫТА');
+    return;
+  }
+
+  $('endScreen').className = 'end-screen win show';
+  $('endTitle').textContent = '🏆 6:00 — ПОБЕДА';
+  $('endText').innerHTML = `Вы дожили до утра.<br>Ночь ${game.night} пройдена.`;
+  log('ПОБЕДА');
+  showToast('🏆 Победа!', 'success');
+}
+
+function loseGame(reason){
+  game.running = false;
+  const mgr = window.SP_CHARS?.Manager;
+  if (mgr) mgr.running = false;
+
+  $('endScreen').className = 'end-screen lose show';
+  $('endTitle').textContent = '💀 ВЫ ПОГИБЛИ';
+  $('endText').textContent = reason || 'Что-то пошло не так...';
+  log('ПРОИГРЫШ — ' + (reason || ''));
+  showToast('💀 Проигрыш', 'danger');
+}
+
+function startSecretNight(){ $('secretScreen').classList.remove('show'); location.href = 'game.html?night=6'; }
+
+function restartGame(){
+  $('endScreen').className = 'end-screen';
+  $('secretScreen').classList.remove('show');
+  $('customScreen').classList.remove('show');
+  $('pauseOverlay').classList.remove('show');
+  $('jumpScare').classList.remove('show');
+  $('camerasOverlay').classList.remove('show');
+  $('office').classList.remove('hidden');
+
+  game.running = true;
+  game.paused = false;
+  game.hour = 0;
+  game.timeInHour = 0;
+  game.energy = 100;
+  game.leftDoor = false;
+  game.rightDoor = false;
+  game.leftLight = false;
+  game.rightLight = false;
+  game.leftFrozen = false;
+  game.rightFrozen = false;
+  game.camerasOpen = false;
+  game.flashlight = false;
+  game.currentCam = 'main-stage';
+  game.logs = [];
+  game.startTime = Date.now();
+  $('adminLog').innerHTML = '';
+  $('flashlightBtn').classList.remove('on');
+  $('flashlightDarkness').classList.remove('on');
+
+  if (window.SP_CHARS){
+    window.SP_CHARS.initAudio();
+    window.SP_CHARS.Manager.onGameOver = (a) => triggerJumpScare(a);
+    window.SP_CHARS.Manager.reset(game.night, game.customAI);
+  }
+
+  log(`Игра началась. Ночь ${game.night}`);
+  render();
+}
+
+function pauseGame(){
+  if (!game.running) return;
+  game.paused = true;
+  $('pauseOverlay').classList.add('show');
+}
+function resumeGame(){
+  game.paused = false;
+  $('pauseOverlay').classList.remove('show');
+  lastTick = 0;
+}
+
+const admin = {
+  skipTo(hour){
+    if (!game.running) return;
+    game.hour = hour; game.timeInHour = 0;
+    log(`⏩ Пропуск до ${formatTime(hour)}`);
+    showToast(`Время: ${formatTime(hour)}`, 'gold');
+    if (game.hour >= CONFIG.TOTAL_HOURS){ winGame(); return; }
+    render();
+  },
+  setEnergy(v){ game.energy = v; log(`⚡ Энергия: ${v}%`); showToast(`Энергия: ${v}%`, 'gold'); render(); },
+  toggleInfEnergy(){
+    game.infiniteEnergy = !game.infiniteEnergy;
+    const btn = $('infEnergyBtn');
+    btn.textContent = game.infiniteEnergy ? '∞ Бесконечная: ВКЛ' : '∞ Бесконечная: ВЫКЛ';
+    btn.classList.toggle('on', game.infiniteEnergy);
+    log(game.infiniteEnergy ? '∞ ВКЛ' : '∞ ВЫКЛ');
+  },
+  toggleGod(){
+    game.godMode = !game.godMode;
+    const btn = $('godBtn');
+    btn.textContent = game.godMode ? '💀 Бессмертие: ВКЛ' : '💀 Бессмертие: ВЫКЛ';
+    btn.classList.toggle('on', game.godMode);
+    log(game.godMode ? '💀 Бессмертие ВКЛ' : '💀 Бессмертие ВЫКЛ');
+  },
+  setNight(n){
+    game.night = n;
+    game.season = NIGHT_SEASONS[n] || 'summer';
+    document.body.dataset.season = game.season;
+    const mgr = window.SP_CHARS?.Manager;
+    if (mgr) mgr.reset(n, null);
+    log(`🌙 Ночь ${n}`);
+    showToast(`Ночь ${n}`, 'gold');
+    render();
+  },
+  freezeAll(){
+    const mgr = window.SP_CHARS?.Manager;
+    if (!mgr) return;
+    mgr.list.forEach(a => { a.frozen = true; a.frozenTimer = 10; });
+    log('❄️ Все аниматроники заморожены');
+    showToast('❄️ Заморожены', 'gold');
+  },
+  resetChars(){
+    const mgr = window.SP_CHARS?.Manager;
+    if (!mgr) return;
+    mgr.list.forEach(a => a.reset());
+    log('🔄 Аниматроники сброшены');
+  },
+  forceAttack(){
+    const mgr = window.SP_CHARS?.Manager;
+    if (!mgr || !mgr.list.length) return;
+    const active = mgr.list.filter(a => a.active);
+    const target = active[0] || mgr.list[0];
+    triggerJumpScare(target);
+  },
+  forceWin(){ log('🏆 Форс-победа'); winGame(); },
+  forceLose(){ log('💀 Форс-проигрыш'); loseGame('Принудительный проигрыш'); },
+  restart(){ restartGame(); },
+};
+
+function toggleAdmin(){ $('admin').classList.toggle('show'); render(); }
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A')){
+    e.preventDefault(); toggleAdmin(); return;
+  }
+  if (e.key === 'Escape'){
+    if (game.paused) resumeGame(); else pauseGame();
+    return;
+  }
+  if (!game.running || game.paused) return;
+
+  if (e.code === 'KeyQ'){ e.preventDefault(); toggleDoor('left'); }
+  if (e.code === 'KeyE'){ e.preventDefault(); toggleDoor('right'); }
+  if (e.code === 'KeyA' && !e.ctrlKey){ e.preventDefault(); toggleLight('left'); }
+  if (e.code === 'KeyD' && !e.ctrlKey){ e.preventDefault(); toggleLight('right'); }
+  if (e.code === 'KeyC'){ e.preventDefault(); toggleCameras(); }
+  if (e.code === 'KeyF' && game.camerasOpen){ e.preventDefault(); toggleFlashlight(); }
+  if (e.code === 'ArrowLeft' && game.camerasOpen){
+    e.preventDefault();
+    const idx = CAMERAS.findIndex(c => c.id === game.currentCam);
+    switchCamera(CAMERAS[(idx-1+CAMERAS.length)%CAMERAS.length].id);
+  }
+  if (e.code === 'ArrowRight' && game.camerasOpen){
+    e.preventDefault();
+    const idx = CAMERAS.findIndex(c => c.id === game.currentCam);
+    switchCamera(CAMERAS[(idx+1)%CAMERAS.length].id);
+  }
+  const digit = { Digit1:1,Digit2:2,Digit3:3,Digit4:4,Digit5:5,Digit6:6,Digit7:7,Digit8:8,Digit9:9,Digit0:0 };
+  if (game.camerasOpen && digit[e.code] !== undefined){
+    const cam = CAMERAS.find(c => c.num === digit[e.code]);
+    if (cam) switchCamera(cam.id);
+  }
+});
+
+$('btnLeft').onclick = () => toggleDoor('left');
+$('btnRight').onclick = () => toggleDoor('right');
+$('lightLeft').onclick = () => toggleLight('left');
+$('lightRight').onclick = () => toggleLight('right');
+$('camBtn').onclick = toggleCameras;
+$('pauseBtn').onclick = pauseGame;
+$('adminClose').onclick = toggleAdmin;
+$('backBtn').onclick = toggleCameras;
+$('flashlightBtn').onclick = toggleFlashlight;
+$('prevBtn').onclick = () => {
+  const idx = CAMERAS.findIndex(c => c.id === game.currentCam);
+  switchCamera(CAMERAS[(idx-1+CAMERAS.length)%CAMERAS.length].id);
+};
+$('nextBtn').onclick = () => {
+  const idx = CAMERAS.findIndex(c => c.id === game.currentCam);
+  switchCamera(CAMERAS[(idx+1)%CAMERAS.length].id);
+};
+
+$('camView').addEventListener('mousemove', e => {
+  if (!game.flashlight) return;
+  const rect = $('camView').getBoundingClientRect();
+  game.flashlightX = ((e.clientX - rect.left) / rect.width) * 100;
+  game.flashlightY = ((e.clientY - rect.top) / rect.height) * 100;
+  updateFlashlightPos();
+});
+
+if (params.has('test')) $('test-panel').classList.add('show');
+
+restartGame();
+requestAnimationFrame(gameLoop);
+
+console.log('%c🎡 Seasons Park — game.html','font-size:18px;color:#38bdf8;font-weight:bold;');
+console.log('%c🎭 Главная сцена добавлена (камера 1)','color:#fbbf24;');
+console.log('%cНочь:', 'color:#fbbf24;', game.night, '| Сезон:', game.season);
+</script>
+</body>
+</html>
