@@ -155,8 +155,7 @@
     background:rgba(239,68,68,.1);
   }
   .btn.dissolve{
-    border-color:var(--danger);
-    color:#fff;
+    border-color:var(--danger);color:#fff;
     background:linear-gradient(90deg,var(--danger),#b91c1c);
     box-shadow:0 10px 25px rgba(239,68,68,.3);
   }
@@ -202,22 +201,16 @@
   }
 
   .kick-btn{
-    width:32px;height:32px;
-    border-radius:50%;
+    width:32px;height:32px;border-radius:50%;
     background:rgba(239,68,68,.15);
     border:1px solid rgba(239,68,68,.5);
-    color:#fca5a5;
-    cursor:pointer;
-    font-size:1rem;
+    color:#fca5a5;cursor:pointer;font-size:1rem;
     display:flex;align-items:center;justify-content:center;
-    transition:all .2s;
-    flex-shrink:0;
+    transition:all .2s;flex-shrink:0;
   }
   .kick-btn:hover{
-    background:var(--danger);
-    color:#fff;
-    border-color:var(--danger);
-    transform:scale(1.1);
+    background:var(--danger);color:#fff;
+    border-color:var(--danger);transform:scale(1.1);
   }
 
   .room-code{
@@ -243,9 +236,7 @@
   }
   .copy-btn:hover{background:var(--accent);color:#0f172a;}
 
-  .visibility-selector{
-    display:flex;gap:8px;margin-bottom:16px;
-  }
+  .visibility-selector{display:flex;gap:8px;margin-bottom:16px;}
   .visibility-option{
     flex:1;padding:12px 10px;background:var(--panel);
     border:2px solid var(--border);border-radius:10px;
@@ -266,57 +257,33 @@
   .visibility-option .v-desc{font-size:.65rem;color:var(--muted);margin-top:2px;}
 
   .public-lobbies{
-    margin-top:10px;
-    max-height:300px;
-    overflow-y:auto;
-    display:flex;flex-direction:column;gap:8px;
-    padding-right:4px;
+    margin-top:10px;max-height:300px;overflow-y:auto;
+    display:flex;flex-direction:column;gap:8px;padding-right:4px;
   }
   .public-lobbies::-webkit-scrollbar{width:6px;}
   .public-lobbies::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
   .lobby-card{
-    background:var(--panel);
-    border:2px solid var(--border);
-    border-radius:10px;
-    padding:12px 16px;
-    cursor:pointer;
-    transition:all .2s;
-    display:flex;
-    align-items:center;
-    gap:12px;
+    background:var(--panel);border:2px solid var(--border);
+    border-radius:10px;padding:12px 16px;cursor:pointer;
+    transition:all .2s;display:flex;align-items:center;gap:12px;
   }
   .lobby-card:hover{
-    border-color:var(--accent);
-    transform:translateX(4px);
+    border-color:var(--accent);transform:translateX(4px);
     background:rgba(56,189,248,.05);
   }
-  .lobby-card .lobby-icon{
-    font-size:1.5rem;
-  }
-  .lobby-card .lobby-info{
-    flex:1;
-    min-width:0;
-  }
+  .lobby-card .lobby-icon{font-size:1.5rem;}
+  .lobby-card .lobby-info{flex:1;min-width:0;}
   .lobby-card .lobby-name{
-    font-weight:700;
-    font-size:.95rem;
-    margin-bottom:2px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+    font-weight:700;font-size:.95rem;margin-bottom:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .lobby-card .lobby-meta{
-    font-size:.75rem;
-    color:var(--muted);
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+    font-size:.75rem;color:var(--muted);
+    display:flex;gap:10px;flex-wrap:wrap;
   }
   .lobby-card .lobby-players{
-    font-weight:700;
-    color:var(--accent);
-    white-space:nowrap;
+    font-weight:700;color:var(--accent);white-space:nowrap;
   }
 
   .mode-selector{display:flex;gap:8px;margin-bottom:16px;}
@@ -333,11 +300,101 @@
     background:linear-gradient(135deg, rgba(56,189,248,.2), rgba(167,139,250,.2));
     border-color:var(--accent);color:var(--accent);font-weight:700;
   }
-  .mode-option .mode-emoji{
-    font-size:1.6rem;display:block;margin-bottom:4px;
-  }
+  .mode-option .mode-emoji{font-size:1.6rem;display:block;margin-bottom:4px;}
   .mode-option .mode-name{font-weight:700;margin-bottom:2px;}
   .mode-option .mode-desc{font-size:.7rem;color:var(--muted);}
+
+  /* ===== ЧАТ ===== */
+  .chat-container{
+    margin-top:16px;
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .chat-header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 14px;
+    background:rgba(56,189,248,.05);
+    border-bottom:1px solid var(--border);
+    font-size:.75rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:700;
+  }
+  .chat-header .chat-count{
+    background:var(--danger);
+    color:#fff;
+    padding:2px 8px;
+    border-radius:10px;
+    font-size:.7rem;
+    font-weight:900;
+  }
+  .chat-messages{
+    height:180px;
+    overflow-y:auto;
+    padding:10px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:.85rem;
+    line-height:1.4;
+  }
+  .chat-messages::-webkit-scrollbar{width:6px;}
+  .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  .chat-msg{
+    display:flex;
+    gap:6px;
+    word-break:break-word;
+  }
+  .chat-msg .chat-author{
+    font-weight:700;
+    color:var(--accent);
+    flex-shrink:0;
+  }
+  .chat-msg.me .chat-author{color:var(--gold);}
+  .chat-msg.system{
+    color:var(--muted);
+    font-style:italic;
+    font-size:.8rem;
+  }
+  .chat-msg.system .chat-author{display:none;}
+
+  .chat-input-row{
+    display:flex;
+    gap:6px;
+    padding:10px;
+    border-top:1px solid var(--border);
+    background:rgba(0,0,0,.2);
+  }
+  .chat-input{
+    flex:1;
+    padding:10px 12px;
+    background:#000;
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    font:inherit;
+    font-size:.85rem;
+    outline:none;
+    transition:border-color .2s;
+  }
+  .chat-input:focus{
+    border-color:var(--accent);
+  }
+  .chat-send{
+    width:44px;
+    height:44px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border:none;border-radius:8px;color:#0f172a;
+    font-size:1.1rem;cursor:pointer;
+    transition:transform .15s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .chat-send:hover{transform:scale(1.05);}
+  .chat-send:active{transform:scale(.95);}
 
   #toast{
     position:fixed;top:20px;left:50%;
@@ -401,9 +458,7 @@
     display:inline-block;min-width:30px;
   }
 
-  .tabs{
-    display:flex;gap:6px;margin-bottom:16px;
-  }
+  .tabs{display:flex;gap:6px;margin-bottom:16px;}
   .tab{
     flex:1;padding:10px;background:var(--panel);
     border:2px solid var(--border);border-radius:10px;
@@ -419,8 +474,7 @@
 
   .empty-msg{
     text-align:center;padding:30px 20px;
-    color:var(--muted);font-size:.9rem;
-    font-style:italic;
+    color:var(--muted);font-size:.9rem;font-style:italic;
   }
 
   @media (max-width:500px){
@@ -459,7 +513,7 @@
     </button>
   </div>
 
-  <!-- Экран 2: Главное меню -->
+  <!-- Экран 2: Меню -->
   <div class="screen" id="screenMain">
     <h2>🌍 МУЛЬТИПЛЕЕР</h2>
     <button class="btn primary" id="createBtn">
@@ -482,7 +536,6 @@
   <!-- Экран 3: Создание -->
   <div class="screen" id="screenCreate">
     <h2>🎮 СОЗДАТЬ КОМНАТУ</h2>
-
     <div class="input-group">
       <label>Тип комнаты</label>
       <div class="visibility-selector" id="visibilitySelector">
@@ -498,7 +551,6 @@
         </div>
       </div>
     </div>
-
     <button class="btn primary" id="createConfirmBtn">
       <span class="icon">✓</span> Создать
     </button>
@@ -539,20 +591,16 @@
   <!-- Экран 6: Лобби -->
   <div class="screen" id="screenLobby">
     <div class="room-code" id="roomCodeBlock" style="display:none;">
-      <div class="room-code-label" id="roomCodeLabel">Код комнаты</div>
+      <div class="room-code-label">Код комнаты</div>
       <div class="room-code-value" id="lobbyCode">----</div>
-      <button class="copy-btn" id="copyCodeBtn">
-        📋 Скопировать
-      </button>
+      <button class="copy-btn" id="copyCodeBtn">📋 Скопировать</button>
     </div>
 
     <div id="publicBadge" style="display:none;text-align:center;padding:10px;background:rgba(74,222,128,.1);border:1px solid var(--success);border-radius:10px;margin-bottom:16px;color:var(--success);font-size:.85rem;font-weight:700;">
       🌐 Публичная комната
     </div>
 
-    <div class="status-banner" id="statusBanner">
-      Готовы: 0/1
-    </div>
+    <div class="status-banner" id="statusBanner">Готовы: 0/1</div>
 
     <div style="color:var(--muted);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;text-align:center;">
       Игроки (<span id="playerCount">1</span>/4)
@@ -564,7 +612,6 @@
       <div style="color:var(--muted);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;">
         Режим игры (только хост)
       </div>
-
       <div class="mode-selector" id="modeSelector">
         <div class="mode-option active" data-mode="lms">
           <span class="mode-emoji">🏆</span>
@@ -590,6 +637,19 @@
     <button class="btn dissolve" id="dissolveBtn" style="display:none;">
       <span class="icon">💥</span> Распустить комнату
     </button>
+
+    <!-- ЧАТ -->
+    <div class="chat-container">
+      <div class="chat-header">
+        <span>💬 Чат</span>
+        <span class="chat-count" id="chatUnread" style="display:none;">0</span>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Введите сообщение..." maxlength="200" autocomplete="off">
+        <button class="chat-send" id="chatSend">📤</button>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -598,7 +658,7 @@
 
 <script>
 // ============================================================
-// multiplayer.html — Лобби с публичными/приватными комнатами
+// multiplayer.html — Лобби + чат
 // ============================================================
 
 const SUPABASE_URL = 'https://zzipvumlgsqxbwqkmfdp.supabase.co';
@@ -625,6 +685,9 @@ const state = {
   autoStartInterval: null,
   autoStartCountdown: 0,
   publicLobbiesChannel: null,
+  chatChannel: null,
+  lastSeenMessages: [],
+  previousPlayerIds: [],
 };
 
 // ===== Supabase =====
@@ -664,7 +727,6 @@ async function generateUniqueCode(){
       .select('id')
       .eq('id', code)
       .maybeSingle();
-    
     if (error) return code;
     if (!data) return code;
     attempts++;
@@ -734,7 +796,7 @@ $('changeNameBtn').onclick = () => {
   showScreen('screenName');
 };
 
-// ===== Создание комнаты =====
+// ===== Создание =====
 $('createBtn').onclick = () => {
   showScreen('screenCreate');
   $('visibilitySelector').querySelectorAll('.visibility-option').forEach(o => {
@@ -772,14 +834,7 @@ $('createConfirmBtn').onclick = async () => {
 
     const { error: lobbyError } = await state.supabase
       .from('lobbies')
-      .insert({
-        id: code,
-        host_id: playerId,
-        mode: 'lms',
-        status: 'waiting',
-        visibility: state.visibility,
-        name: lobbyName
-      });
+      .insert({ id: code, host_id: playerId, mode: 'lms', status: 'waiting', visibility: state.visibility, name: lobbyName });
 
     if (lobbyError) throw lobbyError;
 
@@ -797,6 +852,8 @@ $('createConfirmBtn').onclick = async () => {
 
     showLobby();
     subscribeToLobby();
+    subscribeToChat();
+    addSystemMessage(`👤 ${state.playerName} создал комнату`);
     showToast('Комната создана!', 'success');
   }catch(e){
     console.error('Ошибка:', e);
@@ -819,9 +876,7 @@ $('browseBackBtn').onclick = () => {
   showScreen('screenMain');
 };
 
-$('refreshBtn').onclick = () => {
-  loadPublicLobbies();
-};
+$('refreshBtn').onclick = () => loadPublicLobbies();
 
 async function loadPublicLobbies(){
   const container = $('publicLobbies');
@@ -842,10 +897,7 @@ async function loadPublicLobbies(){
     }
 
     const lobbiesWithPlayers = await Promise.all(lobbies.map(async lobby => {
-      const { data: players } = await state.supabase
-        .from('players')
-        .select('id, name')
-        .eq('lobby_id', lobby.id);
+      const { data: players } = await state.supabase.from('players').select('id, name').eq('lobby_id', lobby.id);
       return { ...lobby, players: players || [] };
     }));
 
@@ -853,7 +905,6 @@ async function loadPublicLobbies(){
       const hostName = lobby.players[0]?.name || '???';
       const count = lobby.players.length;
       const modeName = lobby.mode === 'coop' ? '🤝 Кооп' : '🏆 LMS';
-      
       return `
         <div class="lobby-card" data-lobby="${lobby.id}">
           <div class="lobby-icon">🎮</div>
@@ -882,13 +933,7 @@ function subscribeToPublicLobbies(){
   if (state.publicLobbiesChannel) return;
   state.publicLobbiesChannel = state.supabase
     .channel('public-lobbies')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'lobbies'
-    }, () => {
-      loadPublicLobbies();
-    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'lobbies' }, () => loadPublicLobbies())
     .subscribe();
 }
 
@@ -899,29 +944,17 @@ function unsubscribePublicLobbies(){
   }
 }
 
-// ===== Вход в лобби по ID =====
+// ===== Вход по ID =====
 async function joinLobbyById(code){
   if (!state.supabase) return;
   try{
-    const { data: lobby, error } = await state.supabase
-      .from('lobbies')
-      .select('*')
-      .eq('id', code)
-      .maybeSingle();
-
+    const { data: lobby, error } = await state.supabase.from('lobbies').select('*').eq('id', code).maybeSingle();
     if (error) throw error;
     if (!lobby){ showToast('Комната не найдена', 'danger'); return; }
     if (lobby.status !== 'waiting'){ showToast('Игра уже началась', 'danger'); return; }
 
-    const { data: existing } = await state.supabase
-      .from('players')
-      .select('id')
-      .eq('lobby_id', code);
-
-    if (existing && existing.length >= MAX_PLAYERS){
-      showToast('Комната полна', 'danger');
-      return;
-    }
+    const { data: existing } = await state.supabase.from('players').select('id').eq('lobby_id', code);
+    if (existing && existing.length >= MAX_PLAYERS){ showToast('Комната полна', 'danger'); return; }
 
     const playerId = crypto.randomUUID();
     const { error: joinError } = await state.supabase
@@ -940,6 +973,8 @@ async function joinLobbyById(code){
     unsubscribePublicLobbies();
     showLobby();
     subscribeToLobby();
+    subscribeToChat();
+    addSystemMessage(`👤 ${state.playerName} вошёл в комнату`);
     showToast('Вы вошли!', 'success');
   }catch(e){
     console.error('Ошибка:', e);
@@ -966,36 +1001,20 @@ $('codeInput').addEventListener('keydown', e => {
 
 $('joinConfirmBtn').onclick = async () => {
   const code = $('codeInput').value.trim().toUpperCase();
-  if (code.length !== CODE_LENGTH){
-    showToast(`Код из ${CODE_LENGTH} символов`, 'danger');
-    return;
-  }
-
+  if (code.length !== CODE_LENGTH){ showToast(`Код из ${CODE_LENGTH} символов`, 'danger'); return; }
   if (!state.supabase){ showToast('Нет подключения', 'danger'); return; }
 
   $('joinConfirmBtn').disabled = true;
   $('joinConfirmBtn').innerHTML = '<span class="icon">⏳</span> Вход...';
 
   try{
-    const { data: lobby, error } = await state.supabase
-      .from('lobbies')
-      .select('*')
-      .eq('id', code)
-      .maybeSingle();
-
+    const { data: lobby, error } = await state.supabase.from('lobbies').select('*').eq('id', code).maybeSingle();
     if (error) throw error;
     if (!lobby){ showToast('Комната не найдена', 'danger'); return; }
     if (lobby.status !== 'waiting'){ showToast('Игра уже началась', 'danger'); return; }
 
-    const { data: existing } = await state.supabase
-      .from('players')
-      .select('id')
-      .eq('lobby_id', code);
-
-    if (existing && existing.length >= MAX_PLAYERS){
-      showToast('Комната полна', 'danger');
-      return;
-    }
+    const { data: existing } = await state.supabase.from('players').select('id').eq('lobby_id', code);
+    if (existing && existing.length >= MAX_PLAYERS){ showToast('Комната полна', 'danger'); return; }
 
     const playerId = crypto.randomUUID();
     const { error: joinError } = await state.supabase
@@ -1013,6 +1032,8 @@ $('joinConfirmBtn').onclick = async () => {
 
     showLobby();
     subscribeToLobby();
+    subscribeToChat();
+    addSystemMessage(`👤 ${state.playerName} вошёл в комнату`);
     showToast('Вы вошли!', 'success');
   }catch(e){
     console.error('Ошибка:', e);
@@ -1023,7 +1044,7 @@ $('joinConfirmBtn').onclick = async () => {
   }
 };
 
-// ===== Показ лобби =====
+// ===== Лобби =====
 function showLobby(){
   const roomCodeBlock = $('roomCodeBlock');
   const publicBadge = $('publicBadge');
@@ -1053,19 +1074,14 @@ function showLobby(){
   updatePlayersList();
 }
 
-// ===== Подписка =====
+// ===== Подписки =====
 function subscribeToLobby(){
   state.channels.forEach(ch => state.supabase.removeChannel(ch));
   state.channels = [];
 
   const playersChannel = state.supabase
     .channel('players-' + state.lobbyId)
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'players',
-      filter: `lobby_id=eq.${state.lobbyId}`
-    }, payload => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `lobby_id=eq.${state.lobbyId}` }, payload => {
       if (payload.eventType === 'DELETE' && payload.old.id === state.playerId){
         showToast('💥 Вас выгнали из комнаты', 'danger');
         setTimeout(() => location.href = 'multiplayer.html', 2000);
@@ -1077,12 +1093,7 @@ function subscribeToLobby(){
 
   const lobbyChannel = state.supabase
     .channel('lobby-' + state.lobbyId)
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'lobbies',
-      filter: `id=eq.${state.lobbyId}`
-    }, payload => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'lobbies', filter: `id=eq.${state.lobbyId}` }, payload => {
       if (payload.eventType === 'UPDATE' && payload.new.status === 'started'){
         location.href = `game-mp.html?lobby=${state.lobbyId}&player=${state.playerId}`;
         return;
@@ -1099,7 +1110,110 @@ function subscribeToLobby(){
   loadPlayers();
 }
 
-// ===== Загрузка игроков =====
+// ===== ЧАТ =====
+function subscribeToChat(){
+  // Загружаем старые сообщения
+  loadMessages();
+
+  // Подписка на новые
+  state.chatChannel = state.supabase
+    .channel('chat-' + state.lobbyId)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'messages',
+      filter: `lobby_id=eq.${state.lobbyId}`
+    }, payload => {
+      addMessageToChat(payload.new, true);
+    })
+    .subscribe();
+}
+
+async function loadMessages(){
+  try{
+    const { data, error } = await state.supabase
+      .from('messages')
+      .select('*')
+      .eq('lobby_id', state.lobbyId)
+      .order('created_at', { ascending: true })
+      .limit(100);
+
+    if (error) throw error;
+    
+    $('chatMessages').innerHTML = '';
+    (data || []).forEach(msg => addMessageToChat(msg, false));
+  }catch(e){
+    console.error('Ошибка загрузки чата:', e);
+  }
+}
+
+async function sendChatMessage(){
+  const input = $('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!state.lobbyId || !state.playerId) return;
+
+  input.value = '';
+
+  try{
+    await state.supabase.from('messages').insert({
+      lobby_id: state.lobbyId,
+      player_id: state.playerId,
+      player_name: state.playerName,
+      text: text,
+      type: 'chat'
+    });
+  }catch(e){
+    console.error('Ошибка отправки:', e);
+    showToast('Не удалось отправить', 'danger');
+  }
+}
+
+async function addSystemMessage(text){
+  if (!state.lobbyId || !state.playerId) return;
+  try{
+    await state.supabase.from('messages').insert({
+      lobby_id: state.lobbyId,
+      player_id: state.playerId,
+      player_name: 'System',
+      text: text,
+      type: 'system'
+    });
+  }catch(e){
+    console.error('Ошибка:', e);
+  }
+}
+
+function addMessageToChat(msg, isNew){
+  const container = $('chatMessages');
+  const isMe = msg.player_id === state.playerId;
+  const isSystem = msg.type === 'system' || msg.player_name === 'System';
+  
+  const div = document.createElement('div');
+  div.className = 'chat-msg' + (isMe ? ' me' : '') + (isSystem ? ' system' : '');
+  
+  if (isSystem){
+    div.innerHTML = `<span>${msg.text}</span>`;
+  } else {
+    div.innerHTML = `<span class="chat-author">${msg.player_name}:</span><span>${escapeHtml(msg.text)}</span>`;
+  }
+  
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text){
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+$('chatSend').onclick = sendChatMessage;
+$('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); sendChatMessage(); }
+});
+
+// ===== Игроки =====
 async function loadPlayers(){
   if (!state.lobbyId) return;
   try{
@@ -1110,6 +1224,25 @@ async function loadPlayers(){
       .order('created_at', { ascending: true });
 
     if (error) throw error;
+    
+    // Уведомления о входе/выходе
+    const newIds = (data || []).map(p => p.id);
+    const oldIds = state.previousPlayerIds || [];
+    
+    (data || []).forEach(p => {
+      if (!oldIds.includes(p.id) && state.previousPlayerIds.length > 0){
+        addSystemMessage(`👤 ${p.name} вошёл в комнату`);
+      }
+    });
+    
+    oldIds.forEach(id => {
+      if (!newIds.includes(id)){
+        // Кто-то вышел
+        addSystemMessage(`🚪 Игрок вышел из комнаты`);
+      }
+    });
+    
+    state.previousPlayerIds = newIds;
     state.players = data || [];
     updatePlayersList();
   }catch(e){
@@ -1117,7 +1250,6 @@ async function loadPlayers(){
   }
 }
 
-// ===== Обновление списка =====
 function updatePlayersList(){
   const players = state.players;
   $('playerCount').textContent = players.length;
@@ -1140,7 +1272,7 @@ function updatePlayersList(){
         <div class="player-name">${p.name}${isMe ? ' (вы)' : ''}</div>
         ${isHost ? '<span class="player-badge">ХОСТ</span>' : ''}
         <div class="player-status">${ready ? '✅' : '⏳'}</div>
-        ${canKick ? `<button class="kick-btn" data-kick="${p.id}" title="Выгнать">🚫</button>` : ''}
+        ${canKick ? `<button class="kick-btn" data-kick="${p.id}" data-name="${p.name}" title="Выгнать">🚫</button>` : ''}
       </div>
     `;
   }).join('');
@@ -1150,7 +1282,7 @@ function updatePlayersList(){
   document.querySelectorAll('.kick-btn').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
-      kickPlayer(btn.dataset.kick);
+      kickPlayer(btn.dataset.kick, btn.dataset.name);
     };
   });
 
@@ -1212,13 +1344,9 @@ function stopAutoStart(){
   state.autoStartCountdown = 0;
 }
 
-// ===== Старт =====
 async function startGame(){
   try{
-    await state.supabase
-      .from('lobbies')
-      .update({ status: 'started' })
-      .eq('id', state.lobbyId);
+    await state.supabase.from('lobbies').update({ status: 'started' }).eq('id', state.lobbyId);
     location.href = `game-mp.html?lobby=${state.lobbyId}&player=${state.playerId}`;
   }catch(e){
     console.error('Ошибка:', e);
@@ -1232,30 +1360,26 @@ async function toggleReady(){
   if (!me) return;
   const newStatus = me.status === 'ready' ? 'alive' : 'ready';
   try{
-    await state.supabase
-      .from('players')
-      .update({ status: newStatus })
-      .eq('id', state.playerId);
+    await state.supabase.from('players').update({ status: newStatus }).eq('id', state.playerId);
+    if (newStatus === 'ready'){
+      addSystemMessage(`✅ ${state.playerName} готов`);
+    } else {
+      addSystemMessage(`⏳ ${state.playerName} отменил готовность`);
+    }
   }catch(e){
     console.error(e);
   }
 }
 
 // ===== Кик =====
-async function kickPlayer(playerId){
+async function kickPlayer(playerId, name){
   if (!state.isHost) return;
-  const player = state.players.find(p => p.id === playerId);
-  if (!player) return;
-  if (!confirm(`Выгнать ${player.name}?`)) return;
-  
+  if (!confirm(`Выгнать ${name}?`)) return;
   try{
-    await state.supabase
-      .from('players')
-      .delete()
-      .eq('id', playerId);
-    showToast(`${player.name} выгнан`, 'gold');
+    await state.supabase.from('players').delete().eq('id', playerId);
+    addSystemMessage(`🚫 ${name} выгнан из комнаты`);
+    showToast(`${name} выгнан`, 'gold');
   }catch(e){
-    console.error(e);
     showToast('Ошибка кика', 'danger');
   }
 }
@@ -1272,7 +1396,7 @@ $('modeSelector').querySelectorAll('.mode-option').forEach(opt => {
   };
 });
 
-// ===== Копировать код =====
+// ===== Копировать =====
 $('copyCodeBtn').onclick = () => {
   const code = state.lobbyId;
   if (navigator.clipboard){
@@ -1315,12 +1439,10 @@ $('leaveBtn').onclick = leaveLobby;
 async function dissolveLobby(){
   if (!state.isHost) return;
   if (!confirm('💥 Распустить комнату?\n\nВсе игроки будут выкинуты. Продолжить?')) return;
-  
   try{
     await state.supabase.from('lobbies').delete().eq('id', state.lobbyId);
     location.href = 'multiplayer.html';
   }catch(e){
-    console.error(e);
     showToast('Ошибка: ' + e.message, 'danger');
   }
 }
@@ -1333,16 +1455,14 @@ setTimeout(() => {
   if (rb) rb.onclick = toggleReady;
 }, 100);
 
-// ===== URL параметры =====
+// ===== URL =====
 const params = new URLSearchParams(location.search);
 if (params.has('lobby')){
   const code = params.get('lobby').toUpperCase();
   if (code.length === CODE_LENGTH){
     $('codeInput').value = code;
     showScreen('screenJoin');
-    setTimeout(() => {
-      if (state.playerName) $('joinConfirmBtn').click();
-    }, 500);
+    setTimeout(() => { if (state.playerName) $('joinConfirmBtn').click(); }, 500);
   }
 }
 
@@ -1351,7 +1471,6 @@ initSupabase();
 loadName();
 
 console.log('%c🌍 Seasons Park — multiplayer.html','font-size:18px;color:#38bdf8;font-weight:bold;');
-console.log('%cSupabase:', SUPABASE_URL);
 </script>
 </body>
 </html>
